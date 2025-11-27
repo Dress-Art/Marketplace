@@ -1,11 +1,13 @@
 'use client';
 
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import SearchIcon from '@/components/icons/SearchIcon';
 import ShoppingCartIcon from '@/components/icons/ShoppingCartIcon';
 
 export default function Header() {
+    const pathname = usePathname();
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -29,13 +31,13 @@ export default function Header() {
 
                 {/* Menu de navigation Desktop */}
                 <nav className="hidden md:flex items-center gap-8 absolute left-1/2 transform -translate-x-1/2">
-                    <Link href="/" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
+                    <Link href="/" className={`font-medium transition-colors ${pathname === '/' ? 'text-gray-900 underline underline-offset-4' : 'text-gray-600 hover:text-gray-900'}`}>
                         Accueil
                     </Link>
-                    <Link href="/models" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
+                    <Link href="/models" className={`font-medium transition-colors ${pathname.startsWith('/models') ? 'text-gray-900 underline underline-offset-4' : 'text-gray-600 hover:text-gray-900'}`}>
                         Models
                     </Link>
-                    <Link href="/suivi" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
+                    <Link href="/suivi" className={`font-medium transition-colors ${pathname.startsWith('/suivi') ? 'text-gray-900 underline underline-offset-4' : 'text-gray-600 hover:text-gray-900'}`}>
                         Suivi
                     </Link>
                 </nav>
@@ -110,21 +112,21 @@ export default function Header() {
                 <div className="flex flex-col items-center justify-center h-full gap-8 text-2xl">
                     <Link
                         href="/"
-                        className="text-gray-900 font-medium hover:text-gray-600 transition-colors"
+                        className={`font-medium transition-colors ${pathname === '/' ? 'text-gray-900 underline underline-offset-4' : 'text-gray-900 hover:text-gray-600'}`}
                         onClick={() => setIsMobileMenuOpen(false)}
                     >
                         Accueil
                     </Link>
                     <Link
                         href="/models"
-                        className="text-gray-900 font-medium hover:text-gray-600 transition-colors"
+                        className={`font-medium transition-colors ${pathname.startsWith('/models') ? 'text-gray-900 underline underline-offset-4' : 'text-gray-900 hover:text-gray-600'}`}
                         onClick={() => setIsMobileMenuOpen(false)}
                     >
                         Models
                     </Link>
                     <Link
                         href="/suivi"
-                        className="text-gray-900 font-medium hover:text-gray-600 transition-colors"
+                        className={`font-medium transition-colors ${pathname.startsWith('/suivi') ? 'text-gray-900 underline underline-offset-4' : 'text-gray-900 hover:text-gray-600'}`}
                         onClick={() => setIsMobileMenuOpen(false)}
                     >
                         Suivi

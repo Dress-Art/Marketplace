@@ -33,10 +33,10 @@ export default function ModelsPage() {
     return (
         <div className="min-h-screen relative">
             {/* Bouton retour */}
-            <div className="fixed top-20 left-6 z-[60]">
+            <div className="fixed top-14 left-4 z-[60]">
                 <button
                     onClick={() => router.back()}
-                    className="p-2 hover:bg-gray-100 rounded-full transition-colors cursor-pointer bg-white shadow-sm"
+                    className="p-2 hover:bg-gray-100 rounded-full transition-colors cursor-pointer border border-gray-200 bg-white shadow-sm"
                     aria-label="Retour"
                 >
                     <ArrowLeftIcon size={24} className="text-gray-700" />
@@ -88,8 +88,8 @@ export default function ModelsPage() {
                     ))}
                 </div>
 
-                {/* Vue MD (2 colonnes) */}
-                <div className="hidden md:flex lg:hidden gap-4 p-4 items-start">
+                {/* Vue MD (2 colonnes) hidden md:*/}
+                <div className="flex lg:hidden gap-4 p-4 items-start">
                     {columns2.map((column, colIndex) => (
                         <div key={colIndex} className="flex-1 flex flex-col gap-4">
                             {column.map((model) => (
@@ -108,7 +108,7 @@ export default function ModelsPage() {
                 </div>
 
                 {/* Vue Mobile/SM (1 colonne) */}
-                <div className="flex md:hidden gap-4 p-4 items-start">
+                {/* <div className="flex md:hidden gap-4 p-4 items-start">
                     {columns1.map((column, colIndex) => (
                         <div key={colIndex} className="flex-1 flex flex-col gap-4">
                             {column.map((model) => (
@@ -124,7 +124,7 @@ export default function ModelsPage() {
                             ))}
                         </div>
                     ))}
-                </div>
+                </div> */}
             </main>
         </div>
     );
