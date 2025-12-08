@@ -6,6 +6,8 @@ export const modelsData = [
         titre: 'Robe Élégante',
         description: 'Robe longue pour soirée',
         prix: 15000,
+        type: 'Robe',
+        designer: 'Élégance Paris',
         width: 1024,
         height: 1024
     },
@@ -15,6 +17,8 @@ export const modelsData = [
         titre: 'Tailleur Moderne',
         description: 'Ensemble professionnel chic',
         prix: 25000,
+        type: 'Tailleur',
+        designer: 'Chic Milano',
         width: 735,
         height: 934
     },
@@ -24,6 +28,8 @@ export const modelsData = [
         titre: 'Robe d\'Été',
         description: 'Légère et colorée',
         prix: 12000,
+        type: 'Robe',
+        designer: 'Summer Collection',
         width: 502,
         height: 743
     },
@@ -33,6 +39,8 @@ export const modelsData = [
         titre: 'Ensemble Casual',
         description: 'Confort et style',
         prix: 18000,
+        type: 'Ensemble',
+        designer: 'Urban Style',
         width: 736,
         height: 736
     },
@@ -42,6 +50,8 @@ export const modelsData = [
         titre: 'Veste Premium',
         description: 'Luxe et élégance',
         prix: 22000,
+        type: 'Veste',
+        designer: 'Élégance Paris',
         width: 736,
         height: 1008
     },
@@ -51,6 +61,8 @@ export const modelsData = [
         titre: 'Robe Cocktail',
         description: 'Parfaite pour vos soirées',
         prix: 20000,
+        type: 'Robe',
+        designer: 'Glamour Nights',
         width: 1170,
         height: 1260
     },
@@ -60,6 +72,8 @@ export const modelsData = [
         titre: 'Pantalon Chic',
         description: 'Coupe moderne',
         prix: 14000,
+        type: 'Pantalon',
+        designer: 'Chic Milano',
         width: 736,
         height: 1308
     },
@@ -69,6 +83,8 @@ export const modelsData = [
         titre: 'Collection Luxe',
         description: 'Pièce unique et raffinée',
         prix: 35000,
+        type: 'Ensemble',
+        designer: 'Haute Couture',
         width: 736,
         height: 736
     },
@@ -78,6 +94,8 @@ export const modelsData = [
         titre: 'Top Sophistiqué',
         description: 'Haut élégant pour toutes occasions',
         prix: 10000,
+        type: 'Top',
+        designer: 'Urban Style',
         width: 736,
         height: 1104
     },
@@ -87,6 +105,8 @@ export const modelsData = [
         titre: 'Robe de Mariée',
         description: 'Créations sur mesure',
         prix: 50000,
+        type: 'Robe',
+        designer: 'Haute Couture',
         width: 736,
         height: 700
     },
@@ -96,6 +116,8 @@ export const modelsData = [
         titre: 'Costume Sur-Mesure',
         description: 'Élégance masculine raffinée',
         prix: 30000,
+        type: 'Costume',
+        designer: 'Chic Milano',
         width: 1080,
         height: 1274
     },
@@ -105,6 +127,8 @@ export const modelsData = [
         titre: 'Jupe Plissée',
         description: 'Style intemporel et féminin',
         prix: 8000,
+        type: 'Jupe',
+        designer: 'Summer Collection',
         width: 526,
         height: 526
     },
@@ -114,6 +138,8 @@ export const modelsData = [
         titre: 'Manteau d\'Hiver',
         description: 'Chaleur et style réunis',
         prix: 28000,
+        type: 'Manteau',
+        designer: 'Élégance Paris',
         width: 736,
         height: 736
     },
@@ -123,6 +149,8 @@ export const modelsData = [
         titre: 'Chemise Classique',
         description: 'Basique revisité avec élégance',
         prix: 9000,
+        type: 'Chemise',
+        designer: 'Urban Style',
         width: 635,
         height: 619
     },
@@ -132,6 +160,8 @@ export const modelsData = [
         titre: 'Ensemble Sportswear',
         description: 'Confort et modernité',
         prix: 16000,
+        type: 'Ensemble',
+        designer: 'Urban Style',
         width: 736,
         height: 736
     },
@@ -141,6 +171,8 @@ export const modelsData = [
         titre: 'Accessoires Luxe',
         description: 'Compléter votre look avec style',
         prix: 12000,
+        type: 'Accessoire',
+        designer: 'Glamour Nights',
         width: 686,
         height: 1200
     },
