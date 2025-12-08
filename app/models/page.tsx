@@ -1,12 +1,14 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/models/Header';
 import ModelCard from '@/components/models/ModelCard';
 import Filters from '@/components/models/Filters';
 import ArrowLeftIcon from '@/components/icons/ArrowLeftIcon';
 import { modelsData } from './data';
+
+const ITEMS_PER_PAGE = 8; // Nombre de modèles à charger à chaque fois
 
 export default function ModelsPage() {
     const router = useRouter();
@@ -15,6 +17,12 @@ export default function ModelsPage() {
     const [selectedType, setSelectedType] = useState('');
     const [selectedDesigner, setSelectedDesigner] = useState('');
     const [priceRange, setPriceRange] = useState('');
+    
+    // États pour l'infinite scroll
+    const [displayCount, setDisplayCount] = useState(ITEMS_PER_PAGE);
+    const [isLoading, setIsLoading] = useState(false);
+    const observerRef = useRef<IntersectionObserver | null>(null);
+    const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
     // Extraire les types et designers uniques
     const types = useMemo(() => {
@@ -50,26 +58,74 @@ export default function ModelsPage() {
         });
     }, [selectedType, selectedDesigner, priceRange]);
 
+    // Réinitialiser le compte quand les filtres changent
+    useEffect(() => {
+        setDisplayCount(ITEMS_PER_PAGE);
+    }, [selectedType, selectedDesigner, priceRange]);
+
+    // Modèles à afficher (avec pagination)
+    const displayedModels = useMemo(() => {
+        return filteredModels.slice(0, displayCount);
+    }, [filteredModels, displayCount]);
+
+    const hasMore = displayCount < filteredModels.length;
+
+    // Fonction pour charger plus de modèles
+    const loadMore = () => {
+        if (isLoading || !hasMore) return;
+        
+        setIsLoading(true);
+        // Simuler un délai de chargement (optionnel)
+        setTimeout(() => {
+            setDisplayCount(prev => prev + ITEMS_PER_PAGE);
+            setIsLoading(false);
+        }, 500);
+    };
+
+    // Intersection Observer pour détecter le scroll
+    useEffect(() => {
+        if (observerRef.current) observerRef.current.disconnect();
+
+        observerRef.current = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting && hasMore && !isLoading) {
+                    loadMore();
+                }
+            },
+            { threshold: 0.1 }
+        );
+
+        if (loadMoreRef.current) {
+            observerRef.current.observe(loadMoreRef.current);
+        }
+
+        return () => {
+            if (observerRef.current) {
+                observerRef.current.disconnect();
+            }
+        };
+    }, [hasMore, isLoading]);
+
     // Distribution pour 5 colonnes (XL)
     const columns5 = Array.from({ length: 5 }, () => [] as typeof modelsData);
-    filteredModels.forEach((model, index) => {
+    displayedModels.forEach((model, index) => {
         columns5[index % 5].push(model);
     });
 
     // Distribution pour 3 colonnes (LG)
     const columns3 = Array.from({ length: 3 }, () => [] as typeof modelsData);
-    filteredModels.forEach((model, index) => {
+    displayedModels.forEach((model, index) => {
         columns3[index % 3].push(model);
     });
 
     // Distribution pour 2 colonnes (MD)
     const columns2 = Array.from({ length: 2 }, () => [] as typeof modelsData);
-    filteredModels.forEach((model, index) => {
+    displayedModels.forEach((model, index) => {
         columns2[index % 2].push(model);
     });
 
     // Distribution pour 1 colonne (Mobile/SM)
-    const columns1 = [filteredModels];
+    const columns1 = [displayedModels];
 
     return (
         <div className="min-h-screen relative">
@@ -207,6 +263,23 @@ export default function ModelsPage() {
                         </div>
                     ))}
                 </div> */}
+
+                {/* Loader et trigger pour infinite scroll */}
+                {filteredModels.length > 0 && (
+                    <div ref={loadMoreRef} className="flex justify-center items-center py-8">
+                        {isLoading && (
+                            <div className="flex flex-col items-center gap-2">
+                                <div className="w-8 h-8 border-4 border-gray-300 border-t-gray-900 rounded-full animate-spin"></div>
+                                <p className="text-sm text-gray-600">Chargement...</p>
+                            </div>
+                        )}
+                        {!hasMore && displayedModels.length > 0 && (
+                            <p className="text-sm text-gray-600">
+                                Tous les modèles ont été chargés ({filteredModels.length} au total)
+                            </p>
+                        )}
+                    </div>
+                )}
             </main>
         </div>
     );

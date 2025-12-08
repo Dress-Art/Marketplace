@@ -176,4 +176,92 @@ export const modelsData = [
         width: 686,
         height: 1200
     },
+    {
+        id: 17,
+        image: '/models/example1.png',
+        titre: 'Robe de Soirée Dorée',
+        description: 'Éclat et sophistication',
+        prix: 45000,
+        type: 'Robe',
+        designer: 'Haute Couture',
+        width: 1024,
+        height: 1024
+    },
+    {
+        id: 18,
+        image: '/models/example2.jpg',
+        titre: 'Blazer Moderne',
+        description: 'Pour un look professionnel',
+        prix: 28000,
+        type: 'Veste',
+        designer: 'Chic Milano',
+        width: 735,
+        height: 934
+    },
+    {
+        id: 19,
+        image: '/models/example3.jpg',
+        titre: 'Robe Bohème',
+        description: 'Style décontracté et chic',
+        prix: 18000,
+        type: 'Robe',
+        designer: 'Summer Collection',
+        width: 502,
+        height: 743
+    },
+    {
+        id: 20,
+        image: '/models/example4.jpg',
+        titre: 'Tenue de Sport Chic',
+        description: 'Confort et élégance réunis',
+        prix: 22000,
+        type: 'Ensemble',
+        designer: 'Urban Style',
+        width: 736,
+        height: 736
+    },
+    {
+        id: 21,
+        image: '/models/example5.jpg',
+        titre: 'Veste en Cuir',
+        description: 'Style rock et élégant',
+        prix: 38000,
+        type: 'Veste',
+        designer: 'Élégance Paris',
+        width: 736,
+        height: 1008
+    },
+    {
+        id: 22,
+        image: '/models/example6.jpg',
+        titre: 'Robe de Gala',
+        description: 'Pour les grandes occasions',
+        prix: 55000,
+        type: 'Robe',
+        designer: 'Haute Couture',
+        width: 1170,
+        height: 1260
+    },
+    {
+        id: 23,
+        image: '/models/example7.jpg',
+        titre: 'Pantalon Large',
+        description: 'Tendance et confortable',
+        prix: 16000,
+        type: 'Pantalon',
+        designer: 'Urban Style',
+        width: 736,
+        height: 1308
+    },
+    {
+        id: 24,
+        image: '/models/example8.jpg',
+        titre: 'Ensemble Cérémonie',
+        description: 'Pour vos événements spéciaux',
+        prix: 42000,
+        type: 'Ensemble',
+        designer: 'Glamour Nights',
+        width: 736,
+        height: 736
+    },
 ];
