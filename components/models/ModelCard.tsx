@@ -6,11 +6,12 @@ interface ModelCardProps {
     image: string;
     titre: string;
     description: string;
+    prix: number;
     width: number;
     height: number;
 }
 
-export default function ModelCard({ id, image, titre, description, width, height }: ModelCardProps) {
+export default function ModelCard({ id, image, titre, description, prix, width, height }: ModelCardProps) {
     return (
         <Link href={`/models/${id}/tissus`}>
             <div
@@ -48,8 +49,11 @@ export default function ModelCard({ id, image, titre, description, width, height
                         <h3 className="text-white text-lg font-bold mb-1">
                             {titre}
                         </h3>
-                        <p className="text-white/90 text-xs">
+                        <p className="text-white/90 text-xs mb-2">
                             {description}
+                        </p>
+                        <p className="text-white font-bold text-base">
+                            {prix.toLocaleString('fr-FR')} FCFA
                         </p>
                     </div>
                 </div>

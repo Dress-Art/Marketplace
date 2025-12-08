@@ -61,6 +61,7 @@ export default function ModelsPage() {
                                     image={model.image}
                                     titre={model.titre}
                                     description={model.description}
+                                    prix={model.prix}
                                     width={model.width}
                                     height={model.height}
                                 />
@@ -80,6 +81,7 @@ export default function ModelsPage() {
                                     image={model.image}
                                     titre={model.titre}
                                     description={model.description}
+                                    prix={model.prix}
                                     width={model.width}
                                     height={model.height}
                                 />
@@ -99,6 +101,7 @@ export default function ModelsPage() {
                                     image={model.image}
                                     titre={model.titre}
                                     description={model.description}
+                                    prix={model.prix}
                                     width={model.width}
                                     height={model.height}
                                 />
