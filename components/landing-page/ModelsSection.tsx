@@ -43,6 +43,7 @@ export default function ModelsSection() {
                                     image={model.image}
                                     titre={model.titre}
                                     description={model.description}
+                                    prix={model.prix}
                                     width={model.width}
                                     height={model.height}
                                 />
