@@ -6,9 +6,8 @@ import Header from '@/components/models/Header';
 import ModelCard from '@/components/models/ModelCard';
 import Filters from '@/components/models/Filters';
 import ArrowLeftIcon from '@/components/icons/ArrowLeftIcon';
+import { useModels } from '@/hooks/useModels';
 import { modelsData } from './data';
-
-const ITEMS_PER_PAGE = 8; // Nombre de modèles à charger à chaque fois
 
 export default function ModelsPage() {
     const router = useRouter();
@@ -18,13 +17,32 @@ export default function ModelsPage() {
     const [selectedDesigner, setSelectedDesigner] = useState('');
     const [priceRange, setPriceRange] = useState('');
     
-    // États pour l'infinite scroll
-    const [displayCount, setDisplayCount] = useState(ITEMS_PER_PAGE);
-    const [isLoading, setIsLoading] = useState(false);
     const observerRef = useRef<IntersectionObserver | null>(null);
     const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
-    // Extraire les types et designers uniques
+    // Calcul des filtres de prix
+    const priceFilters = useMemo(() => {
+        if (!priceRange) return {};
+        const [min, max] = priceRange.split('-').map(Number);
+        return { priceMin: min, priceMax: max };
+    }, [priceRange]);
+
+    // Utilisation du hook avec API et fallback
+    const {
+        models: displayedModels,
+        loading: isLoading,
+        hasMore,
+        totalCount,
+        loadMore,
+        isUsingAPI,
+    } = useModels({
+        type: selectedType || undefined,
+        designer: selectedDesigner || undefined,
+        ...priceFilters,
+        limit: 8,
+    });
+
+    // Extraire les types et designers uniques (des données locales pour les filtres)
     const types = useMemo(() => {
         return Array.from(new Set(modelsData.map(m => m.type))).sort();
     }, []);
@@ -32,55 +50,6 @@ export default function ModelsPage() {
     const designers = useMemo(() => {
         return Array.from(new Set(modelsData.map(m => m.designer))).sort();
     }, []);
-
-    // Filtrer les modèles
-    const filteredModels = useMemo(() => {
-        return modelsData.filter(model => {
-            // Filtre par type
-            if (selectedType && model.type !== selectedType) {
-                return false;
-            }
-
-            // Filtre par designer
-            if (selectedDesigner && model.designer !== selectedDesigner) {
-                return false;
-            }
-
-            // Filtre par prix
-            if (priceRange) {
-                const [min, max] = priceRange.split('-').map(Number);
-                if (model.prix < min || model.prix > max) {
-                    return false;
-                }
-            }
-
-            return true;
-        });
-    }, [selectedType, selectedDesigner, priceRange]);
-
-    // Réinitialiser le compte quand les filtres changent
-    useEffect(() => {
-        setDisplayCount(ITEMS_PER_PAGE);
-    }, [selectedType, selectedDesigner, priceRange]);
-
-    // Modèles à afficher (avec pagination)
-    const displayedModels = useMemo(() => {
-        return filteredModels.slice(0, displayCount);
-    }, [filteredModels, displayCount]);
-
-    const hasMore = displayCount < filteredModels.length;
-
-    // Fonction pour charger plus de modèles
-    const loadMore = () => {
-        if (isLoading || !hasMore) return;
-        
-        setIsLoading(true);
-        // Simuler un délai de chargement (optionnel)
-        setTimeout(() => {
-            setDisplayCount(prev => prev + ITEMS_PER_PAGE);
-            setIsLoading(false);
-        }, 500);
-    };
 
     // Intersection Observer pour détecter le scroll
     useEffect(() => {
@@ -162,12 +131,12 @@ export default function ModelsPage() {
                     
                     {/* Compteur de résultats */}
                     <div className="text-sm text-gray-600 mb-2">
-                        {filteredModels.length} modèle{filteredModels.length > 1 ? 's' : ''} trouvé{filteredModels.length > 1 ? 's' : ''}
+                        {totalCount} modèle{totalCount > 1 ? 's' : ''} trouvé{totalCount > 1 ? 's' : ''}
                     </div>
                 </div>
 
                 {/* Message si aucun résultat */}
-                {filteredModels.length === 0 && (
+                {displayedModels.length === 0 && !isLoading && (
                     <div className="flex flex-col items-center justify-center p-12 text-center">
                         <div className="text-6xl mb-4">🔍</div>
                         <h3 className="text-2xl font-bold text-gray-900 mb-2">Aucun modèle trouvé</h3>
@@ -265,7 +234,7 @@ export default function ModelsPage() {
                 </div> */}
 
                 {/* Loader et trigger pour infinite scroll */}
-                {filteredModels.length > 0 && (
+                {displayedModels.length > 0 && (
                     <div ref={loadMoreRef} className="flex justify-center items-center py-8">
                         {isLoading && (
                             <div className="flex flex-col items-center gap-2">
@@ -275,7 +244,7 @@ export default function ModelsPage() {
                         )}
                         {!hasMore && displayedModels.length > 0 && (
                             <p className="text-sm text-gray-600">
-                                Tous les modèles ont été chargés ({filteredModels.length} au total)
+                                Tous les modèles ont été chargés ({totalCount} au total)
                             </p>
                         )}
                     </div>

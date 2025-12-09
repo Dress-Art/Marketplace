@@ -4,13 +4,24 @@ import Image from 'next/image';
 interface TissuCardProps {
     tissu: any;
     modelId: string;
+    isSelected?: boolean;
+    onClick?: () => void;
 }
 
-export default function TissuCard({ tissu, modelId }: TissuCardProps) {
+export default function TissuCard({ tissu, modelId, isSelected = false, onClick }: TissuCardProps) {
+    const handleClick = (e: React.MouseEvent) => {
+        if (onClick) {
+            e.preventDefault();
+            onClick();
+        }
+    };
+
     return (
-        <Link href={`/models/${modelId}/tissus/${tissu.id}/mesure`}>
+        <Link href={`/models/${modelId}/tissus/${tissu.id}/mesure`} onClick={handleClick}>
             <div
-                className="group relative overflow-hidden rounded-2xl cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
+                className={`group relative overflow-hidden rounded-2xl cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl ${
+                    isSelected ? 'ring-4 ring-gray-900 scale-[1.02] shadow-2xl' : ''
+                }`}
             >
                 {/* Image du tissu avec skeleton */}
                 <div className="relative w-full">
@@ -57,6 +68,15 @@ export default function TissuCard({ tissu, modelId }: TissuCardProps) {
                         {tissu.prix.toLocaleString('fr-FR')} FCFA
                     </span>
                 </div>
+
+                {/* Indicateur de sélection */}
+                {isSelected && (
+                    <div className="absolute top-3 left-3 bg-gray-900 text-white p-2 rounded-full z-20 shadow-lg">
+                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                    </div>
+                )}
             </div>
         </Link>
     );
