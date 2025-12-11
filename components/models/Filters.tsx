@@ -11,6 +11,13 @@ interface FiltersProps {
     designers: string[];
 }
 
+const priceRanges = [
+    { value: '0-10000', label: '< 10K' },
+    { value: '10000-20000', label: '10-20K' },
+    { value: '20000-30000', label: '20-30K' },
+    { value: '30000-99999', label: '> 30K' },
+];
+
 export default function Filters({
     selectedType,
     selectedDesigner,
@@ -30,68 +37,107 @@ export default function Filters({
     };
 
     return (
-        <div className="bg-white border border-gray-200 rounded-2xl p-6 mb-6">
-            <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold">Filtres</h2>
+        <div className="mb-8 px-4">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-gray-900">Filtres</h2>
                 {hasActiveFilters && (
                     <button
                         onClick={resetFilters}
-                        className="text-sm text-gray-600 hover:text-gray-900 underline cursor-pointer"
+                        className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors group"
                     >
-                        Réinitialiser
+                        <svg className="w-4 h-4 transition-transform group-hover:rotate-180 duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        <span className="font-medium">Réinitialiser</span>
                     </button>
                 )}
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Filtre par type */}
+
+            {/* Filters */}
+            <div className="space-y-6">
+                {/* Type */}
                 <div>
-                    <label className="block text-sm font-semibold mb-2">Type de vêtement</label>
-                    <select
-                        value={selectedType}
-                        onChange={(e) => onTypeChange(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 cursor-pointer"
-                    >
-                        <option value="">Tous les types</option>
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">Type</label>
+                    <div className="flex flex-wrap gap-2">
+                        <button
+                            onClick={() => onTypeChange('')}
+                            className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${!selectedType
+                                    ? 'bg-gray-900 text-white shadow-lg scale-105'
+                                    : 'bg-white border border-gray-200 text-gray-700 hover:border-gray-300 hover:shadow-md'
+                                }`}
+                        >
+                            Tous
+                        </button>
                         {types.map((type) => (
-                            <option key={type} value={type}>
+                            <button
+                                key={type}
+                                onClick={() => onTypeChange(type)}
+                                className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${selectedType === type
+                                        ? 'bg-gray-900 text-white shadow-lg scale-105'
+                                        : 'bg-white border border-gray-200 text-gray-700 hover:border-gray-300 hover:shadow-md'
+                                    }`}
+                            >
                                 {type}
-                            </option>
+                            </button>
                         ))}
-                    </select>
+                    </div>
                 </div>
 
-                {/* Filtre par designer */}
+                {/* Designer */}
                 <div>
-                    <label className="block text-sm font-semibold mb-2">Designer</label>
-                    <select
-                        value={selectedDesigner}
-                        onChange={(e) => onDesignerChange(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 cursor-pointer"
-                    >
-                        <option value="">Tous les designers</option>
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">Designer</label>
+                    <div className="flex flex-wrap gap-2">
+                        <button
+                            onClick={() => onDesignerChange('')}
+                            className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${!selectedDesigner
+                                    ? 'bg-gray-900 text-white shadow-lg scale-105'
+                                    : 'bg-white border border-gray-200 text-gray-700 hover:border-gray-300 hover:shadow-md'
+                                }`}
+                        >
+                            Tous
+                        </button>
                         {designers.map((designer) => (
-                            <option key={designer} value={designer}>
+                            <button
+                                key={designer}
+                                onClick={() => onDesignerChange(designer)}
+                                className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${selectedDesigner === designer
+                                        ? 'bg-gray-900 text-white shadow-lg scale-105'
+                                        : 'bg-white border border-gray-200 text-gray-700 hover:border-gray-300 hover:shadow-md'
+                                    }`}
+                            >
                                 {designer}
-                            </option>
+                            </button>
                         ))}
-                    </select>
+                    </div>
                 </div>
 
-                {/* Filtre par prix */}
+                {/* Prix */}
                 <div>
-                    <label className="block text-sm font-semibold mb-2">Gamme de prix</label>
-                    <select
-                        value={priceRange}
-                        onChange={(e) => onPriceRangeChange(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 cursor-pointer"
-                    >
-                        <option value="">Tous les prix</option>
-                        <option value="0-10000">Moins de 10 000 FCFA</option>
-                        <option value="10000-20000">10 000 - 20 000 FCFA</option>
-                        <option value="20000-30000">20 000 - 30 000 FCFA</option>
-                        <option value="30000-99999">Plus de 30 000 FCFA</option>
-                    </select>
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">Prix</label>
+                    <div className="flex flex-wrap gap-2">
+                        <button
+                            onClick={() => onPriceRangeChange('')}
+                            className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${!priceRange
+                                    ? 'bg-gray-900 text-white shadow-lg scale-105'
+                                    : 'bg-white border border-gray-200 text-gray-700 hover:border-gray-300 hover:shadow-md'
+                                }`}
+                        >
+                            Tous
+                        </button>
+                        {priceRanges.map((range) => (
+                            <button
+                                key={range.value}
+                                onClick={() => onPriceRangeChange(range.value)}
+                                className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${priceRange === range.value
+                                        ? 'bg-gray-900 text-white shadow-lg scale-105'
+                                        : 'bg-white border border-gray-200 text-gray-700 hover:border-gray-300 hover:shadow-md'
+                                    }`}
+                            >
+                                {range.label}
+                            </button>
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>
