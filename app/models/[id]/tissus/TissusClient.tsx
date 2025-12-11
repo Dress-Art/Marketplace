@@ -1,6 +1,6 @@
 'use client';
 
-import { use } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/models/Header';
 import Image from 'next/image';
@@ -19,6 +19,18 @@ export default function TissusClient({ id }: TissusClientProps) {
     const router = useRouter();
     const modelId = parseInt(id);
     const model = modelsData.find(m => m.id === modelId);
+    const [selectedTissuId, setSelectedTissuId] = useState<number | null>(null);
+
+    const handleSelectTissu = (tissuId: number) => {
+        // Toggle selection - if clicking the same fabric, deselect it
+        setSelectedTissuId(prevId => prevId === tissuId ? null : tissuId);
+    };
+
+    const handleConfirm = () => {
+        if (selectedTissuId) {
+            router.push(`/models/${id}/tissus/${selectedTissuId}/mesure`);
+        }
+    };
 
     if (!model) {
         return <div>Modèle non trouvé</div>;
@@ -101,6 +113,21 @@ export default function TissusClient({ id }: TissusClientProps) {
                             <p className="text-sm text-gray-500">Ou choisissez parmi nos tissus :</p>
                         </div>
 
+                        {/* Confirmation button - Fixed at bottom when fabric is selected */}
+                        {selectedTissuId && (
+                            <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 animate-slideUp">
+                                <button
+                                    onClick={handleConfirm}
+                                    className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-8 rounded-full shadow-2xl transition-all duration-300 hover:scale-105 flex items-center gap-3"
+                                >
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    Confirmer mon choix
+                                </button>
+                            </div>
+                        )}
+
                         {/* Vue XL (4 colonnes) */}
                         <div className="hidden xl:flex gap-4 items-start">
                             {Array.from({ length: 4 }).map((_, colIndex) => (
@@ -108,7 +135,13 @@ export default function TissusClient({ id }: TissusClientProps) {
                                     {tissusData
                                         .filter((_, index) => index % 4 === colIndex)
                                         .map((tissu) => (
-                                            <TissuCard key={tissu.id} tissu={tissu} modelId={id} />
+                                            <TissuCard
+                                                key={tissu.id}
+                                                tissu={tissu}
+                                                modelId={id}
+                                                isSelected={selectedTissuId === tissu.id}
+                                                onSelect={handleSelectTissu}
+                                            />
                                         ))}
                                 </div>
                             ))}
@@ -121,7 +154,13 @@ export default function TissusClient({ id }: TissusClientProps) {
                                     {tissusData
                                         .filter((_, index) => index % 3 === colIndex)
                                         .map((tissu) => (
-                                            <TissuCard key={tissu.id} tissu={tissu} modelId={id} />
+                                            <TissuCard
+                                                key={tissu.id}
+                                                tissu={tissu}
+                                                modelId={id}
+                                                isSelected={selectedTissuId === tissu.id}
+                                                onSelect={handleSelectTissu}
+                                            />
                                         ))}
                                 </div>
                             ))}
@@ -134,7 +173,13 @@ export default function TissusClient({ id }: TissusClientProps) {
                                     {tissusData
                                         .filter((_, index) => index % 2 === colIndex)
                                         .map((tissu) => (
-                                            <TissuCard key={tissu.id} tissu={tissu} modelId={id} />
+                                            <TissuCard
+                                                key={tissu.id}
+                                                tissu={tissu}
+                                                modelId={id}
+                                                isSelected={selectedTissuId === tissu.id}
+                                                onSelect={handleSelectTissu}
+                                            />
                                         ))}
                                 </div>
                             ))}
