@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Header from '@/components/models/Header';
 import Image from 'next/image';
 import { modelsData } from '@/app/models/data';
@@ -29,6 +29,7 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
     const [mode, setMode] = useState<'mesure' | 'rendez-vous' | null>(null);
     const [selectedDate, setSelectedDate] = useState<Date>();
     const [showConfirmation, setShowConfirmation] = useState(false);
+    const [saveIndicator, setSaveIndicator] = useState(false);
 
     // États pour la localisation
     const [location, setLocation] = useState<'cotonou' | 'outside'>('cotonou');
@@ -50,6 +51,38 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
         largeurEpaules: '',
         longueurBras: ''
     });
+
+    // AC2: Charger les mesures sauvegardées au montage du composant
+    useEffect(() => {
+        const storageKey = `measurements_${modelId}`;
+        const savedMeasurements = localStorage.getItem(storageKey);
+
+        if (savedMeasurements) {
+            try {
+                const parsed = JSON.parse(savedMeasurements);
+                setMesures(parsed);
+            } catch (error) {
+                console.error('Erreur lors du chargement des mesures:', error);
+            }
+        }
+    }, [modelId]);
+
+    // AC1: Sauvegarder automatiquement les mesures lors de la saisie
+    useEffect(() => {
+        // Ne sauvegarder que si au moins un champ est rempli
+        const hasData = Object.values(mesures).some(value => value !== '');
+
+        if (hasData) {
+            const storageKey = `measurements_${modelId}`;
+            localStorage.setItem(storageKey, JSON.stringify(mesures));
+
+            // Afficher l'indicateur de sauvegarde
+            setSaveIndicator(true);
+            const timer = setTimeout(() => setSaveIndicator(false), 2000);
+
+            return () => clearTimeout(timer);
+        }
+    }, [mesures, modelId]);
 
     if (!model) {
         return <div>Modèle non trouvé</div>;
@@ -341,6 +374,16 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
                                 >
                                     Valider les mesures
                                 </button>
+
+                                {/* Indicateur de sauvegarde automatique */}
+                                {saveIndicator && (
+                                    <div className="text-center text-sm text-green-600 flex items-center justify-center gap-2">
+                                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                        </svg>
+                                        Mesures sauvegardées automatiquement
+                                    </div>
+                                )}
                             </form>
                         )}
 
