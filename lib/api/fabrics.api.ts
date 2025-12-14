@@ -1,12 +1,11 @@
 // API Service for marketplace-fabrics-list endpoint
-// Uses supabase.functions.invoke() for proper authentication handling
+// Uses Next.js API route proxy to avoid CORS issues
 
-import { supabase } from '@/lib/api/supabase-client';
 import { FabricsListParams, FabricsListResponse } from '@/lib/types/fabrics.types';
 
 /**
  * Fetches a paginated and filterable list of fabrics from the marketplace
- * Uses Supabase Functions invoke for automatic auth handling
+ * Uses Next.js API route as proxy to avoid CORS issues
  * @param params - Query parameters for filtering and pagination
  * @returns Promise with fabrics data and pagination metadata
  */
@@ -14,16 +13,21 @@ export async function fetchFabrics(
     params: FabricsListParams = {}
 ): Promise<FabricsListResponse> {
     try {
-        // Call Supabase Edge Function using invoke method
-        const { data, error } = await supabase.functions.invoke('marketplace-fabrics-list', {
+        // Call Next.js API route (server-side proxy)
+        const response = await fetch('/api/fabrics', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
             body: JSON.stringify(params),
         });
 
-        if (error) {
-            console.error('Supabase function error:', error);
-            throw new Error(error.message || 'Failed to fetch fabrics');
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ error: 'Failed to fetch fabrics' }));
+            throw new Error(errorData.error || 'Failed to fetch fabrics');
         }
 
+        const data = await response.json();
         return data as FabricsListResponse;
     } catch (error) {
         console.error('Error fetching fabrics:', error);
