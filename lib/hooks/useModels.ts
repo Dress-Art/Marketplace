@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { fetchModels } from '@/lib/api/models.api';
-import { Model, ModelsListParams, PaginationMeta } from '@/lib/types/api.types';
+import { Model, ModelsListParams, PaginationMeta } from '@/lib/types/models.types';
 
 interface UseModelsResult {
     models: Model[];
