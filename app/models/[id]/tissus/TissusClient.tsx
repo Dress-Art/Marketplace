@@ -51,8 +51,9 @@ export default function TissusClient({ id }: TissusClientProps) {
         id: parseInt(fabric.id.substring(0, 8), 16) || 0, // Convert UUID to number for ID
         nom: fabric.nom,
         texture: fabric.texture || '',
-        prix: fabric.prix_metre, // ✅ API field is prix_metre
-        image: fabric.image_url || '/models/placeholder.jpg', // ✅ API field is image_url
+        prix: fabric.prix_metre,
+        // Use placeholder until real images are added to /public/images/tissus/
+        image: '/models/placeholder.jpg',
         width: 400,
         height: 300,
     }));
