@@ -2,14 +2,14 @@
 
 export interface Fabric {
     id: string;
-    name: string;
+    nom: string;
     texture: string | null;
-    price_per_meter: number;
-    images: string[];
-    colors: string[];
-    stock: number;
-    vendor_id: string;
+    couleur: string;
+    image_url: string;
+    prix_metre: number;
+    stock_disponible: boolean;
     created_at: string;
+    updated_at: string;
 }
 
 export interface FabricsListParams {

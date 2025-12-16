@@ -27,6 +27,10 @@ export default function TissusClient({ id }: TissusClientProps) {
         per_page: 50, // Get more for selection
     });
 
+    // DEBUG: Log what we receive from API
+    console.log('🔍 Fabrics from API:', fabrics);
+    console.log('🔍 First fabric:', fabrics[0]);
+
     const handleSelectTissu = (tissuId: number) => {
         // Toggle selection - if clicking the same fabric, deselect it
         setSelectedTissuId(prevId => prevId === tissuId ? null : tissuId);
@@ -44,11 +48,11 @@ export default function TissusClient({ id }: TissusClientProps) {
 
     // Convert API Fabric to Tissu format for TissuCard component
     const tissusData = fabrics.map(fabric => ({
-        id: parseInt(fabric.id) || 0,
-        nom: fabric.name,
+        id: parseInt(fabric.id.substring(0, 8), 16) || 0, // Convert UUID to number for ID
+        nom: fabric.nom,
         texture: fabric.texture || '',
-        prix: fabric.price_per_meter,
-        image: fabric.images && fabric.images.length > 0 ? fabric.images[0] : '/models/placeholder.jpg',
+        prix: fabric.prix_metre, // ✅ API field is prix_metre
+        image: fabric.image_url || '/models/placeholder.jpg', // ✅ API field is image_url
         width: 400,
         height: 300,
     }));
