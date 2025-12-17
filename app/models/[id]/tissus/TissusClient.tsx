@@ -7,7 +7,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import ArrowLeftIcon from '@/components/icons/ArrowLeftIcon';
 import { modelsData } from '@/app/models/data';
-import { tissusData } from '@/app/models/tissus-data';
+import { useFabrics } from '@/lib/hooks/useFabrics';
 import TissuCard from '@/components/models/TissuCard';
 import FabricIcon from '@/components/icons/FabricIcon';
 
@@ -20,6 +20,12 @@ export default function TissusClient({ id }: TissusClientProps) {
     const modelId = parseInt(id);
     const model = modelsData.find(m => m.id === modelId);
     const [selectedTissuId, setSelectedTissuId] = useState<number | null>(null);
+
+    // Fetch fabrics from API
+    const { fabrics, loading, error } = useFabrics({
+        page: 1,
+        per_page: 50, // Get more for selection
+    });
 
     const handleSelectTissu = (tissuId: number) => {
         // Toggle selection - if clicking the same fabric, deselect it
@@ -35,6 +41,18 @@ export default function TissusClient({ id }: TissusClientProps) {
     if (!model) {
         return <div>Modèle non trouvé</div>;
     }
+
+    // Convert API Fabric to Tissu format for TissuCard component
+    const tissusData = fabrics.map(fabric => ({
+        id: parseInt(fabric.id.substring(0, 8), 16) || 0, // Convert UUID to number for ID
+        nom: fabric.nom,
+        texture: fabric.texture || '',
+        prix: fabric.prix_metre,
+        // Use placeholder until real images are added to /public/images/tissus/
+        image: '/models/placeholder.jpg',
+        width: 400,
+        height: 300,
+    }));
 
     return (
         <div className="min-h-screen relative">
@@ -113,6 +131,23 @@ export default function TissusClient({ id }: TissusClientProps) {
                             <p className="text-sm text-gray-500">Ou choisissez parmi nos tissus :</p>
                         </div>
 
+                        {/* Loading state */}
+                        {loading && (
+                            <div className="flex justify-center items-center py-12">
+                                <div className="text-center">
+                                    <div className="w-12 h-12 border-4 border-gray-300 border-t-gray-900 rounded-full animate-spin mx-auto mb-4"></div>
+                                    <p className="text-gray-600">Chargement des tissus...</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Error state */}
+                        {error && (
+                            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                                <p className="text-red-800">Erreur: {error}</p>
+                            </div>
+                        )}
+
                         {/* Confirmation button - Fixed at bottom when fabric is selected */}
                         {selectedTissuId && (
                             <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 animate-slideUp">
@@ -129,70 +164,67 @@ export default function TissusClient({ id }: TissusClientProps) {
                         )}
 
                         {/* Vue XL (4 colonnes) */}
-                        <div className="hidden xl:flex gap-4 items-start">
-                            {Array.from({ length: 4 }).map((_, colIndex) => (
-                                <div key={colIndex} className="flex-1 flex flex-col gap-4">
-                                    {tissusData
-                                        .filter((_, index) => index % 4 === colIndex)
-                                        .map((tissu) => (
-                                            <TissuCard
-                                                key={tissu.id}
-                                                tissu={tissu}
-                                                modelId={id}
-                                                isSelected={selectedTissuId === tissu.id}
-                                                onSelect={handleSelectTissu}
-                                            />
-                                        ))}
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Vue LG (3 colonnes) */}
-                        <div className="hidden lg:flex xl:hidden gap-4 items-start">
-                            {Array.from({ length: 3 }).map((_, colIndex) => (
-                                <div key={colIndex} className="flex-1 flex flex-col gap-4">
-                                    {tissusData
-                                        .filter((_, index) => index % 3 === colIndex)
-                                        .map((tissu) => (
-                                            <TissuCard
-                                                key={tissu.id}
-                                                tissu={tissu}
-                                                modelId={id}
-                                                isSelected={selectedTissuId === tissu.id}
-                                                onSelect={handleSelectTissu}
-                                            />
-                                        ))}
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Vue MD (2 colonnes) hidden md:*/}
-                        <div className="flex lg:hidden gap-4 items-start">
-                            {Array.from({ length: 2 }).map((_, colIndex) => (
-                                <div key={colIndex} className="flex-1 flex flex-col gap-4">
-                                    {tissusData
-                                        .filter((_, index) => index % 2 === colIndex)
-                                        .map((tissu) => (
-                                            <TissuCard
-                                                key={tissu.id}
-                                                tissu={tissu}
-                                                modelId={id}
-                                                isSelected={selectedTissuId === tissu.id}
-                                                onSelect={handleSelectTissu}
-                                            />
-                                        ))}
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Vue Mobile/SM (1 colonne) */}
-                        {/* <div className="flex md:hidden gap-4 items-start">
-                            <div className="flex-1 flex flex-col gap-4">
-                                {tissusData.map((tissu) => (
-                                    <TissuCard key={tissu.id} tissu={tissu} modelId={id} />
+                        {!loading && !error && (
+                            <div className="hidden xl:flex gap-4 items-start">
+                                {Array.from({ length: 4 }).map((_, colIndex) => (
+                                    <div key={colIndex} className="flex-1 flex flex-col gap-4">
+                                        {tissusData
+                                            .filter((_, index) => index % 4 === colIndex)
+                                            .map((tissu) => (
+                                                <TissuCard
+                                                    key={tissu.id}
+                                                    tissu={tissu}
+                                                    modelId={id}
+                                                    isSelected={selectedTissuId === tissu.id}
+                                                    onSelect={handleSelectTissu}
+                                                />
+                                            ))}
+                                    </div>
                                 ))}
                             </div>
-                        </div> */}
+                        )}
+
+                        {/* Vue LG (3 colonnes) */}
+                        {!loading && !error && (
+                            <div className="hidden lg:flex xl:hidden gap-4 items-start">
+                                {Array.from({ length: 3 }).map((_, colIndex) => (
+                                    <div key={colIndex} className="flex-1 flex flex-col gap-4">
+                                        {tissusData
+                                            .filter((_, index) => index % 3 === colIndex)
+                                            .map((tissu) => (
+                                                <TissuCard
+                                                    key={tissu.id}
+                                                    tissu={tissu}
+                                                    modelId={id}
+                                                    isSelected={selectedTissuId === tissu.id}
+                                                    onSelect={handleSelectTissu}
+                                                />
+                                            ))}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Vue MD (2 colonnes) */}
+                        {!loading && !error && (
+                            <div className="flex lg:hidden gap-4 items-start">
+                                {Array.from({ length: 2 }).map((_, colIndex) => (
+                                    <div key={colIndex} className="flex-1 flex flex-col gap-4">
+                                        {tissusData
+                                            .filter((_, index) => index % 2 === colIndex)
+                                            .map((tissu) => (
+                                                <TissuCard
+                                                    key={tissu.id}
+                                                    tissu={tissu}
+                                                    modelId={id}
+                                                    isSelected={selectedTissuId === tissu.id}
+                                                    onSelect={handleSelectTissu}
+                                                />
+                                            ))}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
             </main>

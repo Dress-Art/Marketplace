@@ -1,12 +1,43 @@
 'use client';
 
 import Link from 'next/link';
-import { modelsData } from '@/app/models/data';
+import { useModels } from '@/lib/hooks/useModels';
 import ModelCard from '@/components/models/ModelCard';
+import { useMemo } from 'react';
 
 export default function ModelsSection() {
-    // Sélectionner les 5 premiers modèles pour l'affichage
-    const displayModels = modelsData.slice(0, 5);
+    // Fetch models from API
+    const { models, loading } = useModels({
+        page: 1,
+        per_page: 5,
+    });
+
+    // Convert API models to UI format
+    const displayModels = useMemo(() => {
+        const converted = models.slice(0, 5).map(model => ({
+            id: parseInt(model.id.substring(0, 8), 16), // Convert UUID to number
+            image: '/models/placeholder.jpg', // Placeholder for now
+            titre: model.nom,
+            description: model.description,
+            prix: model.prix_base,
+            width: 736,
+            height: 736,
+        }));
+        return converted;
+    }, [models]);
+
+    // Show loading state
+    if (loading && displayModels.length === 0) {
+        return (
+            <section className="py-20 bg-white overflow-hidden">
+                <div className="container mx-auto px-4">
+                    <div className="flex justify-center items-center py-20">
+                        <div className="w-12 h-12 border-4 border-gray-300 border-t-gray-900 rounded-full animate-spin"></div>
+                    </div>
+                </div>
+            </section>
+        );
+    }
 
     return (
         <section className="py-20 bg-white overflow-hidden">
