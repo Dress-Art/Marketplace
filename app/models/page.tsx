@@ -6,32 +6,53 @@ import Header from '@/components/models/Header';
 import ModelCard from '@/components/models/ModelCard';
 import Filters from '@/components/models/Filters';
 import ArrowLeftIcon from '@/components/icons/ArrowLeftIcon';
-import { modelsData } from './data';
+import { useModels } from '@/lib/hooks/useModels';
 
 const ITEMS_PER_PAGE = 8; // Nombre de modèles à charger à chaque fois
 
 export default function ModelsPage() {
     const router = useRouter();
-    
+
     // États pour les filtres
     const [selectedType, setSelectedType] = useState('');
     const [selectedDesigner, setSelectedDesigner] = useState('');
     const [priceRange, setPriceRange] = useState('');
-    
+
     // États pour l'infinite scroll
     const [displayCount, setDisplayCount] = useState(ITEMS_PER_PAGE);
     const [isLoading, setIsLoading] = useState(false);
     const observerRef = useRef<IntersectionObserver | null>(null);
     const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
+    // Fetch models from API
+    const { models, loading: apiLoading } = useModels({
+        page: 1,
+        per_page: 100, // Get all for client-side filtering
+    });
+
+    // Convert API models to UI format
+    const modelsData = useMemo(() => {
+        return models.map(model => ({
+            id: parseInt(model.id.substring(0, 8), 16),
+            image: '/models/placeholder.jpg',
+            titre: model.nom,
+            description: model.description,
+            prix: model.prix_base,
+            type: model.categorie, // API uses 'categorie'
+            designer: 'Designer', // Not in API yet, placeholder
+            width: 736,
+            height: 736,
+        }));
+    }, [models]);
+
     // Extraire les types et designers uniques
     const types = useMemo(() => {
         return Array.from(new Set(modelsData.map(m => m.type))).sort();
-    }, []);
+    }, [modelsData]);
 
     const designers = useMemo(() => {
         return Array.from(new Set(modelsData.map(m => m.designer))).sort();
-    }, []);
+    }, [modelsData]);
 
     // Filtrer les modèles
     const filteredModels = useMemo(() => {
@@ -56,7 +77,7 @@ export default function ModelsPage() {
 
             return true;
         });
-    }, [selectedType, selectedDesigner, priceRange]);
+    }, [modelsData, selectedType, selectedDesigner, priceRange]);
 
     // Réinitialiser le compte quand les filtres changent
     useEffect(() => {
@@ -73,7 +94,7 @@ export default function ModelsPage() {
     // Fonction pour charger plus de modèles
     const loadMore = () => {
         if (isLoading || !hasMore) return;
-        
+
         setIsLoading(true);
         // Simuler un délai de chargement (optionnel)
         setTimeout(() => {
@@ -159,7 +180,7 @@ export default function ModelsPage() {
                         types={types}
                         designers={designers}
                     />
-                    
+
                     {/* Compteur de résultats */}
                     <div className="text-sm text-gray-600 mb-2">
                         {filteredModels.length} modèle{filteredModels.length > 1 ? 's' : ''} trouvé{filteredModels.length > 1 ? 's' : ''}

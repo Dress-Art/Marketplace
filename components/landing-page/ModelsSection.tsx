@@ -14,7 +14,7 @@ export default function ModelsSection() {
 
     // Convert API models to UI format
     const displayModels = useMemo(() => {
-        return models.slice(0, 5).map(model => ({
+        const converted = models.slice(0, 5).map(model => ({
             id: parseInt(model.id.substring(0, 8), 16), // Convert UUID to number
             image: '/models/placeholder.jpg', // Placeholder for now
             titre: model.nom,
@@ -23,6 +23,7 @@ export default function ModelsSection() {
             width: 736,
             height: 736,
         }));
+        return converted;
     }, [models]);
 
     // Show loading state

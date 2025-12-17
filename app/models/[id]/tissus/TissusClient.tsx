@@ -27,10 +27,6 @@ export default function TissusClient({ id }: TissusClientProps) {
         per_page: 50, // Get more for selection
     });
 
-    // DEBUG: Log what we receive from API
-    console.log('🔍 Fabrics from API:', fabrics);
-    console.log('🔍 First fabric:', fabrics[0]);
-
     const handleSelectTissu = (tissuId: number) => {
         // Toggle selection - if clicking the same fabric, deselect it
         setSelectedTissuId(prevId => prevId === tissuId ? null : tissuId);
