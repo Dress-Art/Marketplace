@@ -112,28 +112,21 @@ export default function TestFabricsPage() {
                                         {fabric.price_per_meter.toLocaleString()} F/mètre
                                     </p>
 
-                                    {/* Colors */}
-                                    {fabric.colors && fabric.colors.length > 0 && (
+                                    {/* Color */}
+                                    {fabric.couleur && (
                                         <div className="mb-2">
-                                            <p className="text-xs text-gray-500 mb-1">Couleurs:</p>
-                                            <div className="flex flex-wrap gap-1">
-                                                {fabric.colors.map((color, idx) => (
-                                                    <span
-                                                        key={idx}
-                                                        className="px-2 py-1 bg-gray-100 text-xs rounded"
-                                                    >
-                                                        {color}
-                                                    </span>
-                                                ))}
-                                            </div>
+                                            <p className="text-xs text-gray-500 mb-1">Couleur:</p>
+                                            <span className="px-2 py-1 bg-gray-100 text-xs rounded">
+                                                {fabric.couleur}
+                                            </span>
                                         </div>
                                     )}
 
                                     {/* Stock */}
                                     <div className="flex items-center justify-between text-sm">
                                         <span className="text-gray-600">Stock:</span>
-                                        <span className={`font-semibold ${fabric.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                            {fabric.stock > 0 ? `${fabric.stock} unités` : 'Épuisé'}
+                                        <span className={`font-semibold ${fabric.stock_disponible ? 'text-green-600' : 'text-red-600'}`}>
+                                            {fabric.stock_disponible ? 'Disponible' : 'Épuisé'}
                                         </span>
                                     </div>
 
