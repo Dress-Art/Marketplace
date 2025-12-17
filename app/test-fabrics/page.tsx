@@ -89,18 +89,18 @@ export default function TestFabricsPage() {
                                     className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-shadow"
                                 >
                                     {/* Image */}
-                                    {fabric.images && fabric.images.length > 0 && (
+                                    {fabric.image_url && (
                                         <div className="mb-3 h-40 bg-gray-100 rounded overflow-hidden">
                                             <img
-                                                src={fabric.images[0]}
-                                                alt={fabric.name}
+                                                src={fabric.image_url}
+                                                alt={fabric.nom}
                                                 className="w-full h-full object-cover"
                                             />
                                         </div>
                                     )}
 
                                     {/* Info */}
-                                    <h3 className="font-bold text-lg mb-2">{fabric.name}</h3>
+                                    <h3 className="font-bold text-lg mb-2">{fabric.nom}</h3>
 
                                     {fabric.texture && (
                                         <p className="text-sm text-gray-600 mb-2">
@@ -109,7 +109,7 @@ export default function TestFabricsPage() {
                                     )}
 
                                     <p className="text-lg font-semibold text-gray-900 mb-2">
-                                        {fabric.price_per_meter.toLocaleString()} F/mètre
+                                        {fabric.prix_metre.toLocaleString()} F/mètre
                                     </p>
 
                                     {/* Color */}
