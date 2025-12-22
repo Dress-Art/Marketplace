@@ -63,8 +63,8 @@ export default function Filters({
                         <button
                             onClick={() => onTypeChange('')}
                             className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${!selectedType
-                                    ? 'bg-gray-900 text-white shadow-lg scale-105'
-                                    : 'bg-white border border-gray-200 text-gray-700 hover:border-gray-300 hover:shadow-md'
+                                ? 'bg-gray-900 text-white shadow-lg scale-105'
+                                : 'bg-white border border-gray-200 text-gray-700 hover:border-gray-300 hover:shadow-md'
                                 }`}
                         >
                             Tous
@@ -74,8 +74,8 @@ export default function Filters({
                                 key={type}
                                 onClick={() => onTypeChange(type)}
                                 className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${selectedType === type
-                                        ? 'bg-gray-900 text-white shadow-lg scale-105'
-                                        : 'bg-white border border-gray-200 text-gray-700 hover:border-gray-300 hover:shadow-md'
+                                    ? 'bg-gray-900 text-white shadow-lg scale-105'
+                                    : 'bg-white border border-gray-200 text-gray-700 hover:border-gray-300 hover:shadow-md'
                                     }`}
                             >
                                 {type}
@@ -84,33 +84,35 @@ export default function Filters({
                     </div>
                 </div>
 
-                {/* Designer */}
-                <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">Designer</label>
-                    <div className="flex flex-wrap gap-2">
-                        <button
-                            onClick={() => onDesignerChange('')}
-                            className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${!selectedDesigner
+                {/* Designer - Only show if there are multiple unique designers */}
+                {designers.length > 1 && (
+                    <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-3">Designer</label>
+                        <div className="flex flex-wrap gap-2">
+                            <button
+                                onClick={() => onDesignerChange('')}
+                                className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${!selectedDesigner
                                     ? 'bg-gray-900 text-white shadow-lg scale-105'
                                     : 'bg-white border border-gray-200 text-gray-700 hover:border-gray-300 hover:shadow-md'
-                                }`}
-                        >
-                            Tous
-                        </button>
-                        {designers.map((designer) => (
-                            <button
-                                key={designer}
-                                onClick={() => onDesignerChange(designer)}
-                                className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${selectedDesigner === designer
-                                        ? 'bg-gray-900 text-white shadow-lg scale-105'
-                                        : 'bg-white border border-gray-200 text-gray-700 hover:border-gray-300 hover:shadow-md'
                                     }`}
                             >
-                                {designer}
+                                Tous
                             </button>
-                        ))}
+                            {designers.map((designer) => (
+                                <button
+                                    key={designer}
+                                    onClick={() => onDesignerChange(designer)}
+                                    className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${selectedDesigner === designer
+                                        ? 'bg-gray-900 text-white shadow-lg scale-105'
+                                        : 'bg-white border border-gray-200 text-gray-700 hover:border-gray-300 hover:shadow-md'
+                                        }`}
+                                >
+                                    {designer}
+                                </button>
+                            ))}
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {/* Prix */}
                 <div>
@@ -119,8 +121,8 @@ export default function Filters({
                         <button
                             onClick={() => onPriceRangeChange('')}
                             className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${!priceRange
-                                    ? 'bg-gray-900 text-white shadow-lg scale-105'
-                                    : 'bg-white border border-gray-200 text-gray-700 hover:border-gray-300 hover:shadow-md'
+                                ? 'bg-gray-900 text-white shadow-lg scale-105'
+                                : 'bg-white border border-gray-200 text-gray-700 hover:border-gray-300 hover:shadow-md'
                                 }`}
                         >
                             Tous
@@ -130,8 +132,8 @@ export default function Filters({
                                 key={range.value}
                                 onClick={() => onPriceRangeChange(range.value)}
                                 className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${priceRange === range.value
-                                        ? 'bg-gray-900 text-white shadow-lg scale-105'
-                                        : 'bg-white border border-gray-200 text-gray-700 hover:border-gray-300 hover:shadow-md'
+                                    ? 'bg-gray-900 text-white shadow-lg scale-105'
+                                    : 'bg-white border border-gray-200 text-gray-700 hover:border-gray-300 hover:shadow-md'
                                     }`}
                             >
                                 {range.label}
