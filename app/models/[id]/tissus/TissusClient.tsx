@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/models/Header';
 import Image from 'next/image';
 import Link from 'next/link';
 import ArrowLeftIcon from '@/components/icons/ArrowLeftIcon';
-import { modelsData } from '@/app/models/data';
+import { useModels } from '@/lib/hooks/useModels';
 import { useFabrics } from '@/lib/hooks/useFabrics';
 import TissuCard from '@/components/models/TissuCard';
 import FabricIcon from '@/components/icons/FabricIcon';
@@ -17,15 +17,31 @@ interface TissusClientProps {
 
 export default function TissusClient({ id }: TissusClientProps) {
     const router = useRouter();
-    const modelId = parseInt(id);
-    const model = modelsData.find(m => m.id === modelId);
     const [selectedTissuId, setSelectedTissuId] = useState<number | null>(null);
 
+    // Fetch models from API
+    const { models, loading: modelsLoading } = useModels({
+        page: 1,
+        per_page: 100, // Get all models to find the one we need
+    });
+
+    // Find the model by converting the ID string to match the API format
+    const model = useMemo(() => {
+        const targetId = parseInt(id);
+        return models.find(m => {
+            // Convert UUID to number for comparison
+            const modelNumericId = parseInt(m.id.substring(0, 8), 16);
+            return modelNumericId === targetId;
+        });
+    }, [models, id]);
+
     // Fetch fabrics from API
-    const { fabrics, loading, error } = useFabrics({
+    const { fabrics, loading: fabricsLoading, error } = useFabrics({
         page: 1,
         per_page: 50, // Get more for selection
     });
+
+    const loading = modelsLoading || fabricsLoading;
 
     const handleSelectTissu = (tissuId: number) => {
         // Toggle selection - if clicking the same fabric, deselect it
@@ -39,7 +55,28 @@ export default function TissusClient({ id }: TissusClientProps) {
     };
 
     if (!model) {
-        return <div>Modèle non trouvé</div>;
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    {loading ? (
+                        <>
+                            <div className="w-12 h-12 border-4 border-gray-300 border-t-gray-900 rounded-full animate-spin mx-auto mb-4"></div>
+                            <p className="text-gray-600">Chargement...</p>
+                        </>
+                    ) : (
+                        <>
+                            <p className="text-xl text-gray-600">Modèle non trouvé</p>
+                            <button
+                                onClick={() => router.push('/models')}
+                                className="mt-4 px-6 py-2 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition-all"
+                            >
+                                Retour aux modèles
+                            </button>
+                        </>
+                    )}
+                </div>
+            </div>
+        );
     }
 
     // Convert API Fabric to Tissu format for TissuCard component
@@ -80,16 +117,17 @@ export default function TissusClient({ id }: TissusClientProps) {
                         <div className="lg:sticky lg:top-20 p-4 border border-gray-300 rounded-3xl">
                             <div className="relative w-full rounded-2xl overflow-hidden">
                                 <Image
-                                    src={model.image}
-                                    alt={model.titre}
-                                    width={model.width}
-                                    height={model.height}
+                                    src={model.image_url || '/models/placeholder.jpg'}
+                                    alt={model.nom}
+                                    width={400}
+                                    height={400}
                                     className="w-full h-auto object-cover"
                                 />
                             </div>
                             <div className="mt-4">
-                                <h1 className="text-3xl font-bold mb-2">{model.titre}</h1>
+                                <h1 className="text-3xl font-bold mb-2">{model.nom}</h1>
                                 <p className="text-gray-600">{model.description}</p>
+                                <p className="text-xl font-bold mt-2">{model.prix_base} FCFA</p>
                             </div>
                         </div>
                     </div>
