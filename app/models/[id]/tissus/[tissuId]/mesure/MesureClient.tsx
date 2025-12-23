@@ -229,23 +229,25 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
                             <div
                                 className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-shimmer rounded-2xl"
                                 style={{
-                                    aspectRatio: `${model.width} / ${model.height}`,
+                                    aspectRatio: '1 / 1',
                                     backgroundSize: '200% 100%',
                                     maxHeight: '400px'
                                 }}
                             />
 
-                            <Image
-                                src={model.image}
-                                alt={model.titre}
-                                width={model.width}
-                                height={model.height}
-                                className="w-full h-auto object-cover relative"
-                                style={{ maxHeight: '400px' }}
-                                loading="lazy"
-                            />
+                            {model.image_url && (
+                                <Image
+                                    src={model.image_url}
+                                    alt={model.nom}
+                                    width={1024}
+                                    height={1024}
+                                    className="w-full h-auto object-cover relative"
+                                    style={{ maxHeight: '400px' }}
+                                    loading="lazy"
+                                />
+                            )}
                         </div>
-                        <h3 className="text-xl font-bold">{model.titre}</h3>
+                        <h3 className="text-xl font-bold">{model.nom}</h3>
                         <p className="text-gray-600">{model.description}</p>
                     </div>
 
@@ -267,27 +269,29 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
                                     <div
                                         className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-shimmer rounded-2xl"
                                         style={{
-                                            aspectRatio: `${tissu.width} / ${tissu.height}`,
+                                            aspectRatio: '1 / 1',
                                             backgroundSize: '200% 100%',
                                             maxHeight: '400px'
                                         }}
                                     />
 
-                                    <Image
-                                        src={tissu.image}
-                                        alt={tissu.titre}
-                                        width={tissu.width}
-                                        height={tissu.height}
-                                        className="w-full h-auto object-cover relative"
-                                        style={{ maxHeight: '400px' }}
-                                        loading="lazy"
-                                    />
+                                    {tissu.image_url && (
+                                        <Image
+                                            src={tissu.image_url}
+                                            alt={tissu.nom}
+                                            width={1024}
+                                            height={1024}
+                                            className="w-full h-auto object-cover relative"
+                                            style={{ maxHeight: '400px' }}
+                                            loading="lazy"
+                                        />
+                                    )}
                                 </div>
-                                <h3 className="text-xl font-bold mb-2">{tissu.titre}</h3>
+                                <h3 className="text-xl font-bold mb-2">{tissu.nom}</h3>
                                 <div className="space-y-1 text-sm">
-                                    <p><span className="font-semibold">Qualité:</span> {tissu.qualite}</p>
-                                    <p><span className="font-semibold">Couleur:</span> {tissu.couleur}</p>
-                                    <p className="text-lg font-bold text-gray-900 mt-2">{tissu.prix.toLocaleString('fr-FR')} FCFA</p>
+                                    <p><span className="font-semibold">Qualité:</span> {tissu.texture}</p>
+                                    <p><span className="font-semibold">Couleur:</span> {tissu.couleur_principale}</p>
+                                    <p className="text-lg font-bold text-gray-900 mt-2">{tissu.prix_metre.toLocaleString('fr-FR')} FCFA</p>
                                 </div>
                             </>
                         ) : null}
