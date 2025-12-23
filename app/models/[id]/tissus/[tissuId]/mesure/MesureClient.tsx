@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Header from '@/components/models/Header';
 import Image from 'next/image';
-import { modelsData } from '@/app/models/data';
-import { tissusData } from '@/app/models/tissus-data';
+import { useModels } from '@/lib/hooks/useModels';
+import { useFabrics } from '@/lib/hooks/useFabrics';
 import Calendar from '@/components/ui/Calendar';
 import RulerIcon from '@/components/icons/RulerIcon';
 import CalendarIcon from '@/components/icons/CalendarIcon';
@@ -17,14 +17,42 @@ interface MesureClientProps {
 }
 
 export default function MesureClient({ id, tissuId }: MesureClientProps) {
-    const modelId = parseInt(id);
-
     // Gérer le cas où le client a son propre tissu
     const isOwnFabric = tissuId === 'own';
-    const fabricId = isOwnFabric ? null : parseInt(tissuId);
 
-    const model = modelsData.find(m => m.id === modelId);
-    const tissu = isOwnFabric ? null : tissusData.find(t => t.id === fabricId);
+    // Fetch models from API
+    const { models, loading: modelsLoading } = useModels({
+        page: 1,
+        per_page: 100,
+    });
+
+    // Fetch fabrics from API (only if not own fabric)
+    const { fabrics, loading: fabricsLoading } = useFabrics({
+        page: 1,
+        per_page: 100,
+    });
+
+    // Find the model by converting the ID string to match the API format
+    const model = useMemo(() => {
+        const targetId = parseInt(id);
+        return models.find(m => {
+            // Convert UUID to number for comparison
+            const modelNumericId = parseInt(m.id.substring(0, 8), 16);
+            return modelNumericId === targetId;
+        });
+    }, [models, id]);
+
+    // Find the fabric if not own fabric
+    const tissu = useMemo(() => {
+        if (isOwnFabric) return null;
+        const targetFabricId = parseInt(tissuId);
+        return fabrics.find(f => {
+            const fabricNumericId = parseInt(f.id.substring(0, 8), 16);
+            return fabricNumericId === targetFabricId;
+        });
+    }, [fabrics, tissuId, isOwnFabric]);
+
+    const loading = modelsLoading || fabricsLoading;
 
     const [mode, setMode] = useState<'mesure' | 'rendez-vous' | null>(null);
     const [selectedDate, setSelectedDate] = useState<Date>();
@@ -42,6 +70,10 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
     const [userName, setUserName] = useState('');
     const [userPhone, setUserPhone] = useState('');
 
+    // Type de paiement et état de traitement
+    const [paymentType, setPaymentType] = useState<'full' | 'partial'>('partial');
+    const [isProcessing, setIsProcessing] = useState(false);
+
     // États pour le formulaire de mesures
     const [mesures, setMesures] = useState({
         taille: '',
@@ -54,7 +86,8 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
 
     // AC2: Charger les mesures sauvegardées au montage du composant
     useEffect(() => {
-        const storageKey = `measurements_${modelId}`;
+        if (!model) return;
+        const storageKey = `measurements_${model.id}`;
         const savedMeasurements = localStorage.getItem(storageKey);
 
         if (savedMeasurements) {
@@ -65,15 +98,16 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
                 console.error('Erreur lors du chargement des mesures:', error);
             }
         }
-    }, [modelId]);
+    }, [model]);
 
     // AC1: Sauvegarder automatiquement les mesures lors de la saisie
     useEffect(() => {
+        if (!model) return;
         // Ne sauvegarder que si au moins un champ est rempli
         const hasData = Object.values(mesures).some(value => value !== '');
 
         if (hasData) {
-            const storageKey = `measurements_${modelId}`;
+            const storageKey = `measurements_${model.id}`;
             localStorage.setItem(storageKey, JSON.stringify(mesures));
 
             // Afficher l'indicateur de sauvegarde
@@ -82,7 +116,18 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
 
             return () => clearTimeout(timer);
         }
-    }, [mesures, modelId]);
+    }, [mesures, model]);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <div className="w-12 h-12 border-4 border-gray-300 border-t-gray-900 rounded-full animate-spin mx-auto mb-4"></div>
+                    <p className="text-gray-600">Chargement...</p>
+                </div>
+            </div>
+        );
+    }
 
     if (!model) {
         return <div>Modèle non trouvé</div>;
@@ -94,7 +139,7 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
 
     // Calcul des frais
     const deliveryFee = location === 'outside' ? 500 : 0;
-    const deposit = isOwnFabric ? 0 : (tissu ? tissu.prix * 0.3 : 0); // 30% d'acompte
+    const deposit = isOwnFabric ? 0 : (tissu ? tissu.prix_metre * 0.3 : 0); // 30% d'acompte
     const totalAmount = deposit + deliveryFee;
 
     const handleMesureSubmit = (e: React.FormEvent) => {
@@ -110,11 +155,57 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
         }
     };
 
-    const handlePaymentConfirm = () => {
-        // Fermer le modal et afficher la confirmation
-        setShowPaymentModal(false);
-        setShowConfirmation(true);
-        setTimeout(() => setShowConfirmation(false), 3000);
+    const handlePaymentConfirm = async () => {
+        if (!userName || !userPhone) {
+            alert('Veuillez remplir tous les champs');
+            return;
+        }
+
+        setIsProcessing(true);
+
+        try {
+            // Calculate total amount based on payment type
+            const baseAmount = isOwnFabric ? model.prix_base : (tissu ? tissu.prix_metre + model.prix_base : model.prix_base);
+            const finalAmount = baseAmount + deliveryFee;
+
+            // AC1: Create payment session
+            const response = await fetch('/api/payment/create-session', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    amount: finalAmount,
+                    paymentType,
+                    customerInfo: {
+                        name: userName,
+                        phone: userPhone,
+                    },
+                    orderDetails: {
+                        modelId: model.id,
+                        fabricId: isOwnFabric ? null : (tissu ? tissu.id : null),
+                        measurements: mode === 'mesure' ? mesures : undefined,
+                        appointmentDate: mode === 'rendez-vous' ? selectedDate : undefined,
+                        location,
+                        specificLocation: location === 'outside' ? specificLocation : undefined,
+                    },
+                }),
+            });
+
+            const data = await response.json();
+
+            if (data.success && data.paymentUrl) {
+                // Store pending payment data temporarily in localStorage
+                localStorage.setItem('pendingPayment', JSON.stringify(data.pendingPayment));
+
+                // AC1: Redirect to payment session
+                window.location.href = data.paymentUrl;
+            } else {
+                throw new Error(data.error || 'Failed to create payment session');
+            }
+        } catch (error) {
+            console.error('Payment error:', error);
+            alert('Erreur lors de la création du paiement. Veuillez réessayer.');
+            setIsProcessing(false);
+        }
     };
 
     // Afficher la bannière si rendez-vous ou propre tissu
@@ -138,23 +229,25 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
                             <div
                                 className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-shimmer rounded-2xl"
                                 style={{
-                                    aspectRatio: `${model.width} / ${model.height}`,
+                                    aspectRatio: '1 / 1',
                                     backgroundSize: '200% 100%',
                                     maxHeight: '400px'
                                 }}
                             />
 
-                            <Image
-                                src={model.image}
-                                alt={model.titre}
-                                width={model.width}
-                                height={model.height}
-                                className="w-full h-auto object-cover relative"
-                                style={{ maxHeight: '400px' }}
-                                loading="lazy"
-                            />
+                            {model.image_url && (
+                                <Image
+                                    src={model.image_url}
+                                    alt={model.nom}
+                                    width={1024}
+                                    height={1024}
+                                    className="w-full h-auto object-cover relative"
+                                    style={{ maxHeight: '400px' }}
+                                    loading="lazy"
+                                />
+                            )}
                         </div>
-                        <h3 className="text-xl font-bold">{model.titre}</h3>
+                        <h3 className="text-xl font-bold">{model.nom}</h3>
                         <p className="text-gray-600">{model.description}</p>
                     </div>
 
@@ -176,27 +269,29 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
                                     <div
                                         className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-shimmer rounded-2xl"
                                         style={{
-                                            aspectRatio: `${tissu.width} / ${tissu.height}`,
+                                            aspectRatio: '1 / 1',
                                             backgroundSize: '200% 100%',
                                             maxHeight: '400px'
                                         }}
                                     />
 
-                                    <Image
-                                        src={tissu.image}
-                                        alt={tissu.titre}
-                                        width={tissu.width}
-                                        height={tissu.height}
-                                        className="w-full h-auto object-cover relative"
-                                        style={{ maxHeight: '400px' }}
-                                        loading="lazy"
-                                    />
+                                    {tissu.image_url && (
+                                        <Image
+                                            src={tissu.image_url}
+                                            alt={tissu.nom}
+                                            width={1024}
+                                            height={1024}
+                                            className="w-full h-auto object-cover relative"
+                                            style={{ maxHeight: '400px' }}
+                                            loading="lazy"
+                                        />
+                                    )}
                                 </div>
-                                <h3 className="text-xl font-bold mb-2">{tissu.titre}</h3>
+                                <h3 className="text-xl font-bold mb-2">{tissu.nom}</h3>
                                 <div className="space-y-1 text-sm">
-                                    <p><span className="font-semibold">Qualité:</span> {tissu.qualite}</p>
+                                    <p><span className="font-semibold">Qualité:</span> {tissu.texture}</p>
                                     <p><span className="font-semibold">Couleur:</span> {tissu.couleur}</p>
-                                    <p className="text-lg font-bold text-gray-900 mt-2">{tissu.prix.toLocaleString('fr-FR')} FCFA</p>
+                                    <p className="text-lg font-bold text-gray-900 mt-2">{tissu.prix_metre.toLocaleString('fr-FR')} FCFA</p>
                                 </div>
                             </>
                         ) : null}
@@ -471,12 +566,12 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
                             <div className="space-y-3 text-sm">
                                 <div className="flex justify-between">
                                     <span className="text-gray-600">Modèle :</span>
-                                    <span className="font-semibold text-right">{model.titre}</span>
+                                    <span className="font-semibold text-right">{model.nom}</span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-gray-600">Tissu :</span>
                                     <span className="font-semibold text-right">
-                                        {isOwnFabric ? 'Votre propre tissu' : tissu?.titre}
+                                        {isOwnFabric ? 'Votre propre tissu' : tissu?.nom}
                                     </span>
                                 </div>
                                 <div className="flex justify-between">
@@ -496,16 +591,74 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
                             </div>
                         </div>
 
+                        {/* Type de paiement */}
+                        <div className="mb-6 pb-6 border-b border-gray-200">
+                            <h4 className="font-bold text-gray-900 mb-4">Type de paiement</h4>
+                            <div className="space-y-3">
+                                <label className="flex items-start gap-3 cursor-pointer p-3 border-2 rounded-xl transition-all hover:border-gray-400"
+                                    style={{
+                                        borderColor: paymentType === 'partial' ? '#111827' : '#e5e7eb',
+                                        backgroundColor: paymentType === 'partial' ? '#f9fafb' : 'white'
+                                    }}>
+                                    <input
+                                        type="radio"
+                                        name="paymentType"
+                                        value="partial"
+                                        checked={paymentType === 'partial'}
+                                        onChange={() => setPaymentType('partial')}
+                                        className="w-5 h-5 mt-0.5"
+                                    />
+                                    <div className="flex-1">
+                                        <div className="font-semibold text-gray-900">Acompte (30%)</div>
+                                        <p className="text-sm text-gray-600 mt-1">
+                                            Payez {Math.round((isOwnFabric ? model.prix_base : (tissu ? tissu.prix_metre + model.prix_base : model.prix_base) + deliveryFee) * 0.3).toLocaleString('fr-FR')} FCFA maintenant
+                                        </p>
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Le solde sera payé à la livraison
+                                        </p>
+                                    </div>
+                                </label>
+                                <label className="flex items-start gap-3 cursor-pointer p-3 border-2 rounded-xl transition-all hover:border-gray-400"
+                                    style={{
+                                        borderColor: paymentType === 'full' ? '#111827' : '#e5e7eb',
+                                        backgroundColor: paymentType === 'full' ? '#f9fafb' : 'white'
+                                    }}>
+                                    <input
+                                        type="radio"
+                                        name="paymentType"
+                                        value="full"
+                                        checked={paymentType === 'full'}
+                                        onChange={() => setPaymentType('full')}
+                                        className="w-5 h-5 mt-0.5"
+                                    />
+                                    <div className="flex-1">
+                                        <div className="font-semibold text-gray-900">Paiement complet</div>
+                                        <p className="text-sm text-gray-600 mt-1">
+                                            Payez {(isOwnFabric ? model.prix_base : (tissu ? tissu.prix_metre + model.prix_base : model.prix_base) + deliveryFee).toLocaleString('fr-FR')} FCFA maintenant
+                                        </p>
+                                        <p className="text-xs text-green-600 mt-1">
+                                            ✓ Aucun paiement supplémentaire requis
+                                        </p>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
                         {/* Récapitulatif financier */}
                         <div className="mb-6">
                             <h4 className="font-bold text-gray-900 mb-4">Détails du paiement</h4>
                             <div className="space-y-3">
                                 {!isOwnFabric && tissu && (
                                     <div className="flex justify-between items-center text-sm">
-                                        <span className="text-gray-600">Acompte (30%)</span>
-                                        <span className="font-semibold">{deposit.toLocaleString('fr-FR')} FCFA</span>
+                                        <span className="text-gray-600">Prix tissu</span>
+                                        <span className="font-semibold">{tissu.prix_metre.toLocaleString('fr-FR')} FCFA</span>
                                     </div>
                                 )}
+
+                                <div className="flex justify-between items-center text-sm">
+                                    <span className="text-gray-600">Prix modèle</span>
+                                    <span className="font-semibold">{model.prix_base.toLocaleString('fr-FR')} FCFA</span>
+                                </div>
 
                                 <div className="flex justify-between items-center text-sm">
                                     <span className="text-gray-600">Frais de déplacement</span>
@@ -513,11 +666,23 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
                                 </div>
 
                                 <div className="flex justify-between items-center pt-3 border-t border-gray-200">
-                                    <span className="font-bold text-gray-900">Total à payer</span>
+                                    <span className="font-bold text-gray-900">
+                                        {paymentType === 'partial' ? 'Acompte à payer (30%)' : 'Total à payer'}
+                                    </span>
                                     <span className="font-bold text-gray-900 text-lg">
-                                        {(deposit + deliveryFee).toLocaleString('fr-FR')} FCFA
+                                        {paymentType === 'partial'
+                                            ? Math.round((isOwnFabric ? model.prix_base : (tissu ? tissu.prix_metre + model.prix_base : model.prix_base) + deliveryFee) * 0.3).toLocaleString('fr-FR')
+                                            : (isOwnFabric ? model.prix_base : (tissu ? tissu.prix_metre + model.prix_base : model.prix_base) + deliveryFee).toLocaleString('fr-FR')
+                                        } FCFA
                                     </span>
                                 </div>
+
+                                {paymentType === 'partial' && (
+                                    <div className="flex justify-between items-center text-sm text-gray-600">
+                                        <span>Solde restant</span>
+                                        <span>{Math.round((isOwnFabric ? model.prix_base : (tissu ? tissu.prix_metre + model.prix_base : model.prix_base) + deliveryFee) * 0.7).toLocaleString('fr-FR')} FCFA</span>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -540,13 +705,20 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
                             </button>
                             <button
                                 onClick={handlePaymentConfirm}
-                                disabled={!userName || !userPhone}
-                                className={`flex-1 px-6 py-3 rounded-full font-semibold transition-all cursor-pointer ${userName && userPhone
+                                disabled={!userName || !userPhone || isProcessing}
+                                className={`flex-1 px-6 py-3 rounded-full font-semibold transition-all cursor-pointer flex items-center justify-center gap-2 ${userName && userPhone && !isProcessing
                                     ? 'bg-gray-900 text-white hover:bg-gray-800'
                                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                                     }`}
                             >
-                                Confirmer
+                                {isProcessing ? (
+                                    <>
+                                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                        <span>Traitement...</span>
+                                    </>
+                                ) : (
+                                    'Confirmer et payer'
+                                )}
                             </button>
                         </div>
                     </div>
