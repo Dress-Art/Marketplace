@@ -165,7 +165,7 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
 
         try {
             // Calculate total amount based on payment type
-            const baseAmount = isOwnFabric ? model.prix : (tissu ? tissu.prix + model.prix : model.prix);
+            const baseAmount = isOwnFabric ? model.prix_base : (tissu ? tissu.prix_metre + model.prix_base : model.prix_base);
             const finalAmount = baseAmount + deliveryFee;
 
             // AC1: Create payment session
@@ -290,7 +290,7 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
                                 <h3 className="text-xl font-bold mb-2">{tissu.nom}</h3>
                                 <div className="space-y-1 text-sm">
                                     <p><span className="font-semibold">Qualité:</span> {tissu.texture}</p>
-                                    <p><span className="font-semibold">Couleur:</span> {tissu.couleur_principale}</p>
+                                    <p><span className="font-semibold">Couleur:</span> {tissu.couleur}</p>
                                     <p className="text-lg font-bold text-gray-900 mt-2">{tissu.prix_metre.toLocaleString('fr-FR')} FCFA</p>
                                 </div>
                             </>
@@ -566,12 +566,12 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
                             <div className="space-y-3 text-sm">
                                 <div className="flex justify-between">
                                     <span className="text-gray-600">Modèle :</span>
-                                    <span className="font-semibold text-right">{model.titre}</span>
+                                    <span className="font-semibold text-right">{model.nom}</span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-gray-600">Tissu :</span>
                                     <span className="font-semibold text-right">
-                                        {isOwnFabric ? 'Votre propre tissu' : tissu?.titre}
+                                        {isOwnFabric ? 'Votre propre tissu' : tissu?.nom}
                                     </span>
                                 </div>
                                 <div className="flex justify-between">
@@ -611,7 +611,7 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
                                     <div className="flex-1">
                                         <div className="font-semibold text-gray-900">Acompte (30%)</div>
                                         <p className="text-sm text-gray-600 mt-1">
-                                            Payez {Math.round((isOwnFabric ? model.prix : (tissu ? tissu.prix + model.prix : model.prix) + deliveryFee) * 0.3).toLocaleString('fr-FR')} FCFA maintenant
+                                            Payez {Math.round((isOwnFabric ? model.prix_base : (tissu ? tissu.prix_metre + model.prix_base : model.prix_base) + deliveryFee) * 0.3).toLocaleString('fr-FR')} FCFA maintenant
                                         </p>
                                         <p className="text-xs text-gray-500 mt-1">
                                             Le solde sera payé à la livraison
@@ -634,7 +634,7 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
                                     <div className="flex-1">
                                         <div className="font-semibold text-gray-900">Paiement complet</div>
                                         <p className="text-sm text-gray-600 mt-1">
-                                            Payez {(isOwnFabric ? model.prix : (tissu ? tissu.prix + model.prix : model.prix) + deliveryFee).toLocaleString('fr-FR')} FCFA maintenant
+                                            Payez {(isOwnFabric ? model.prix_base : (tissu ? tissu.prix_metre + model.prix_base : model.prix_base) + deliveryFee).toLocaleString('fr-FR')} FCFA maintenant
                                         </p>
                                         <p className="text-xs text-green-600 mt-1">
                                             ✓ Aucun paiement supplémentaire requis
@@ -651,13 +651,13 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
                                 {!isOwnFabric && tissu && (
                                     <div className="flex justify-between items-center text-sm">
                                         <span className="text-gray-600">Prix tissu</span>
-                                        <span className="font-semibold">{tissu.prix.toLocaleString('fr-FR')} FCFA</span>
+                                        <span className="font-semibold">{tissu.prix_metre.toLocaleString('fr-FR')} FCFA</span>
                                     </div>
                                 )}
 
                                 <div className="flex justify-between items-center text-sm">
                                     <span className="text-gray-600">Prix modèle</span>
-                                    <span className="font-semibold">{model.prix.toLocaleString('fr-FR')} FCFA</span>
+                                    <span className="font-semibold">{model.prix_base.toLocaleString('fr-FR')} FCFA</span>
                                 </div>
 
                                 <div className="flex justify-between items-center text-sm">
@@ -671,8 +671,8 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
                                     </span>
                                     <span className="font-bold text-gray-900 text-lg">
                                         {paymentType === 'partial'
-                                            ? Math.round((isOwnFabric ? model.prix : (tissu ? tissu.prix + model.prix : model.prix) + deliveryFee) * 0.3).toLocaleString('fr-FR')
-                                            : (isOwnFabric ? model.prix : (tissu ? tissu.prix + model.prix : model.prix) + deliveryFee).toLocaleString('fr-FR')
+                                            ? Math.round((isOwnFabric ? model.prix_base : (tissu ? tissu.prix_metre + model.prix_base : model.prix_base) + deliveryFee) * 0.3).toLocaleString('fr-FR')
+                                            : (isOwnFabric ? model.prix_base : (tissu ? tissu.prix_metre + model.prix_base : model.prix_base) + deliveryFee).toLocaleString('fr-FR')
                                         } FCFA
                                     </span>
                                 </div>
@@ -680,7 +680,7 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
                                 {paymentType === 'partial' && (
                                     <div className="flex justify-between items-center text-sm text-gray-600">
                                         <span>Solde restant</span>
-                                        <span>{Math.round((isOwnFabric ? model.prix : (tissu ? tissu.prix + model.prix : model.prix) + deliveryFee) * 0.7).toLocaleString('fr-FR')} FCFA</span>
+                                        <span>{Math.round((isOwnFabric ? model.prix_base : (tissu ? tissu.prix_metre + model.prix_base : model.prix_base) + deliveryFee) * 0.7).toLocaleString('fr-FR')} FCFA</span>
                                     </div>
                                 )}
                             </div>
