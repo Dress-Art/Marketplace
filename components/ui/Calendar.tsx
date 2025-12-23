@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
     format,
     addMonths,
@@ -26,7 +26,8 @@ interface CalendarProps {
 
 export default function Calendar({ selected, onSelect, className = '' }: CalendarProps) {
     const [currentMonth, setCurrentMonth] = useState(new Date());
-    const today = startOfDay(new Date());
+    // Use useMemo to prevent hydration mismatch - calculate once per mount
+    const today = useMemo(() => startOfDay(new Date()), []);
 
     const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
     const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
