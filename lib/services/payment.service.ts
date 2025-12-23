@@ -1,19 +1,27 @@
+const { FedaPay, Transaction } = require('fedapay');
 import type { CreatePaymentSessionParams, PaymentSessionResponse } from '@/lib/types/payment.types';
+
+// Initialize FedaPay - called once at module load
+// This is safe because we're using require() syntax which works in Node.js environment
+let fedapayInitialized = false;
+
+function initializeFedaPay() {
+    if (fedapayInitialized) return;
+
+    const apiKey = process.env.FEDAPAY_API_KEY;
+    const environment = process.env.FEDAPAY_ENVIRONMENT || 'sandbox';
+
+    if (apiKey) {
+        FedaPay.setApiKey(apiKey);
+        FedaPay.setEnvironment(environment);
+        fedapayInitialized = true;
+    }
+}
 
 export class PaymentService {
     /**
      * Create a payment session with FedaPay
      * AC1: Opens payment session when user selects full or partial payment
-     * 
-     * NOTE: FedaPay integration is currently using a placeholder implementation.
-     * To enable real FedaPay payments:
-     * 1. Set FEDAPAY_API_KEY in your .env.local file
-     * 2. Set FEDAPAY_ENVIRONMENT to 'sandbox' or 'live'
-     * 3. Implement the actual FedaPay API calls using their SDK
-     * 
-     * The FedaPay npm package (v1.2.5) API documentation is limited.
-     * Further investigation is needed to determine the correct usage pattern.
-     * See: https://github.com/fedapay/fedapay-node
      */
     static async createSession(params: CreatePaymentSessionParams): Promise<PaymentSessionResponse> {
         try {
@@ -24,11 +32,9 @@ export class PaymentService {
 
             // Check if FedaPay is configured
             const apiKey = process.env.FEDAPAY_API_KEY;
-            const environment = process.env.FEDAPAY_ENVIRONMENT || 'sandbox';
 
             if (!apiKey) {
                 console.warn('FedaPay not configured - using placeholder for development');
-                // Return a placeholder response for development
                 return {
                     sessionId: `dev_${Date.now()}`,
                     paymentUrl: '/payment/success?dev=true',
@@ -36,57 +42,36 @@ export class PaymentService {
                 };
             }
 
-            // TODO: Implement actual FedaPay transaction creation
-            // The fedapay package API needs to be properly configured
-            // For now, returning a development placeholder
-            console.warn('FedaPay API integration pending - using development mode');
-            console.log('Payment details:', {
+            // Initialize FedaPay
+            initializeFedaPay();
+
+            // Create FedaPay transaction
+            const transaction = await Transaction.create({
+                description: `Commande DressArt - ${params.paymentType === 'partial' ? 'Acompte 30%' : 'Paiement complet'}`,
                 amount: finalAmount,
-                paymentType: params.paymentType,
-                customer: params.customerInfo.name,
-                phone: params.customerInfo.phone
+                currency: {
+                    iso: 'XOF' // Franc CFA
+                },
+                callback_url: `${process.env.NEXT_PUBLIC_URL}/api/payment/callback`,
+                customer: {
+                    firstname: params.customerInfo.name.split(' ')[0],
+                    lastname: params.customerInfo.name.split(' ').slice(1).join(' ') || params.customerInfo.name,
+                    email: `${params.customerInfo.phone}@dressart.com`,
+                    phone_number: {
+                        number: params.customerInfo.phone,
+                        country: 'bj'
+                    }
+                }
             });
 
+            // Generate payment token
+            const token = await transaction.generateToken();
+
             return {
-                sessionId: `pending_${Date.now()}`,
-                paymentUrl: '/payment/success?pending=true',
+                sessionId: transaction.id,
+                paymentUrl: token.url,
                 amount: finalAmount
             };
-
-            /* 
-            // Example of what the implementation should look like once the API is figured out:
-            // Based on the package documentation, the API might use:
-            // import { Transaction } from 'fedapay';
-            // 
-            // const transaction = await Transaction.create({
-            //     description: `Commande DressArt - ${params.paymentType === 'partial' ? 'Acompte 30%' : 'Paiement complet'}`,
-            //     amount: finalAmount,
-            //     currency: {
-            //         iso: 'XOF'
-            //     },
-            //     callback_url: `${process.env.NEXT_PUBLIC_URL}/api/payment/callback`,
-            //     customer: {
-            //         firstname: params.customerInfo.name.split(' ')[0],
-            //         lastname: params.customerInfo.name.split(' ').slice(1).join(' ') || params.customerInfo.name,
-            //         email: `${params.customerInfo.phone}@dressart.com`,
-            //         phone_number: {
-            //             number: params.customerInfo.phone,
-            //             country: 'bj'
-            //         }
-            //     }
-            // }, {
-            //     api_key: apiKey,
-            //     environment: environment
-            // });
-            //
-            // const token = await transaction.generateToken();
-            //
-            // return {
-            //     sessionId: transaction.id,
-            //     paymentUrl: token.url,
-            //     amount: finalAmount
-            // };
-            */
         } catch (error) {
             console.error('FedaPay session creation error:', error);
             throw new Error('Failed to create payment session');
@@ -130,24 +115,12 @@ export class PaymentService {
                 return null;
             }
 
-            // TODO: Implement actual FedaPay transaction retrieval
-            // For now, returning null
-            console.warn('FedaPay transaction retrieval not implemented');
-            console.log('Transaction ID:', transactionId);
+            // Initialize FedaPay
+            initializeFedaPay();
 
-            return null;
-
-            /*
-            // Example of what the implementation should look like:
-            // import { Transaction } from 'fedapay';
-            // 
-            // const transaction = await Transaction.retrieve(transactionId, {
-            //     api_key: apiKey,
-            //     environment: process.env.FEDAPAY_ENVIRONMENT || 'sandbox'
-            // });
-            // 
-            // return transaction;
-            */
+            // Retrieve transaction
+            const transaction = await Transaction.retrieve(transactionId);
+            return transaction;
         } catch (error) {
             console.error('Failed to retrieve transaction:', error);
             throw new Error('Failed to get transaction status');
