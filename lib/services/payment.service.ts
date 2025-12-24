@@ -1,11 +1,22 @@
-// import FedaPay from 'fedapay';
+const { FedaPay, Transaction } = require('fedapay');
 import type { CreatePaymentSessionParams, PaymentSessionResponse } from '@/lib/types/payment.types';
 
-// TODO: Initialize FedaPay properly - current package API is different
-// The fedapay package needs to be configured correctly
-// For now, this is a placeholder implementation
-// FedaPay.setApiKey(process.env.FEDAPAY_SECRET_KEY!);
-// FedaPay.setEnvironment(process.env.FEDAPAY_ENVIRONMENT || 'sandbox');
+// Initialize FedaPay - called once at module load
+// This is safe because we're using require() syntax which works in Node.js environment
+let fedapayInitialized = false;
+
+function initializeFedaPay() {
+    if (fedapayInitialized) return;
+
+    const apiKey = process.env.FEDAPAY_API_KEY;
+    const environment = process.env.FEDAPAY_ENVIRONMENT || 'sandbox';
+
+    if (apiKey) {
+        FedaPay.setApiKey(apiKey);
+        FedaPay.setEnvironment(environment);
+        fedapayInitialized = true;
+    }
+}
 
 export class PaymentService {
     /**
@@ -19,19 +30,23 @@ export class PaymentService {
                 ? Math.round(params.amount * 0.3) // 30% deposit
                 : params.amount;
 
-            // TODO: Implement actual FedaPay integration
-            // The fedapay package API needs to be verified and configured
-            // For now, return a placeholder response
-            console.warn('FedaPay integration not yet configured - returning placeholder');
+            // Check if FedaPay is configured
+            const apiKey = process.env.FEDAPAY_API_KEY;
 
-            return {
-                sessionId: `temp_${Date.now()}`,
-                paymentUrl: '/payment/success', // Placeholder
-                amount: finalAmount
-            };
+            if (!apiKey) {
+                console.warn('FedaPay not configured - using placeholder for development');
+                return {
+                    sessionId: `dev_${Date.now()}`,
+                    paymentUrl: '/payment/success?dev=true',
+                    amount: finalAmount
+                };
+            }
 
-            /* Original FedaPay code - to be re-enabled once package is properly configured:
-            const transaction = await FedaPay.Transaction.create({
+            // Initialize FedaPay
+            initializeFedaPay();
+
+            // Create FedaPay transaction
+            const transaction = await Transaction.create({
                 description: `Commande DressArt - ${params.paymentType === 'partial' ? 'Acompte 30%' : 'Paiement complet'}`,
                 amount: finalAmount,
                 currency: {
@@ -49,6 +64,7 @@ export class PaymentService {
                 }
             });
 
+            // Generate payment token
             const token = await transaction.generateToken();
 
             return {
@@ -56,7 +72,6 @@ export class PaymentService {
                 paymentUrl: token.url,
                 amount: finalAmount
             };
-            */
         } catch (error) {
             console.error('FedaPay session creation error:', error);
             throw new Error('Failed to create payment session');
@@ -69,7 +84,12 @@ export class PaymentService {
     static verifyWebhookSignature(payload: string, signature: string): boolean {
         try {
             const crypto = require('crypto');
-            const secret = process.env.FEDAPAY_WEBHOOK_SECRET!;
+            const secret = process.env.FEDAPAY_WEBHOOK_SECRET;
+
+            if (!secret) {
+                console.warn('FEDAPAY_WEBHOOK_SECRET not configured');
+                return false;
+            }
 
             const expectedSignature = crypto
                 .createHmac('sha256', secret)
@@ -88,14 +108,19 @@ export class PaymentService {
      */
     static async getTransactionStatus(transactionId: string) {
         try {
-            // TODO: Implement actual FedaPay integration
-            console.warn('FedaPay integration not yet configured');
-            return null;
+            const apiKey = process.env.FEDAPAY_API_KEY;
 
-            /* Original code - to be re-enabled:
-            const transaction = await FedaPay.Transaction.retrieve(transactionId);
+            if (!apiKey) {
+                console.warn('FedaPay not configured');
+                return null;
+            }
+
+            // Initialize FedaPay
+            initializeFedaPay();
+
+            // Retrieve transaction
+            const transaction = await Transaction.retrieve(transactionId);
             return transaction;
-            */
         } catch (error) {
             console.error('Failed to retrieve transaction:', error);
             throw new Error('Failed to get transaction status');
