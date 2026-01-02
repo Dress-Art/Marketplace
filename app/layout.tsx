@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Schibsted_Grotesk } from "next/font/google";
+import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
 import { seoConfig } from "@/lib/seo/config";
 import { Analytics } from "@vercel/analytics/react";
@@ -11,7 +11,7 @@ const playfairDisplay = Playfair_Display({
   display: "swap",
 });
 
-const schibstedGrotesk = Schibsted_Grotesk({
+const inter = Inter({
   variable: "--font-schibsted",
   subsets: ["latin"],
   display: "swap",
@@ -76,7 +76,7 @@ export default function RootLayout({
   return (
     <html lang="fr" suppressHydrationWarning>
       <body
-        className={`${playfairDisplay.variable} ${schibstedGrotesk.variable} antialiased`}
+        className={`${playfairDisplay.variable} ${inter.variable} antialiased`}
       >
         {children}
         <Analytics />
