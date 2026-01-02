@@ -18,8 +18,8 @@ export default function TissuCard({ tissu, modelId, isSelected = false, onSelect
         <div
             onClick={handleClick}
             className={`group relative overflow-hidden rounded-2xl cursor-pointer transition-all duration-300 hover:scale-[1.02] ${isSelected
-                    ? 'ring-4 ring-blue-500 shadow-2xl scale-[1.02]'
-                    : 'hover:shadow-xl'
+                ? 'ring-4 ring-gray-900 shadow-2xl scale-[1.02]'
+                : 'hover:shadow-xl'
                 }`}
         >
             {/* Image du tissu avec skeleton */}
@@ -45,8 +45,8 @@ export default function TissuCard({ tissu, modelId, isSelected = false, onSelect
 
             {/* Checkmark overlay when selected */}
             {isSelected && (
-                <div className="absolute inset-0 bg-blue-500/20 rounded-2xl flex items-center justify-center z-30 animate-fadeIn">
-                    <div className="bg-blue-500 rounded-full p-3 shadow-lg">
+                <div className="absolute inset-0 bg-gray-900/20 rounded-2xl flex items-center justify-center z-30 animate-fadeIn">
+                    <div className="bg-gray-900 rounded-full p-3 shadow-lg">
                         <svg
                             className="w-12 h-12 text-white"
                             fill="none"
@@ -85,8 +85,8 @@ export default function TissuCard({ tissu, modelId, isSelected = false, onSelect
 
             {/* Badge prix */}
             <div className={`absolute top-3 right-3 backdrop-blur-md px-2 py-1 rounded-full border z-20 transition-all duration-300 ${isSelected
-                    ? 'bg-blue-500 border-blue-300'
-                    : 'bg-white/30 border-white/20'
+                ? 'bg-gray-900 border-gray-700'
+                : 'bg-white/30 border-white/20'
                 }`}>
                 <span className={`font-semibold text-xs ${isSelected ? 'text-white' : 'text-gray-900'
                     }`}>
