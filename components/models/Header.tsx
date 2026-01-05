@@ -20,7 +20,7 @@ export default function Header() {
     };
 
     return (
-        <header className="w-full py-4 px-6 bg-background relative z-50">
+        <header className="w-full py-4 px-6 md:px-10 bg-background relative z-50">
             <div className="flex items-center justify-between gap-4">
                 {/* Logo à gauche */}
                 <div className="flex items-center gap-3 z-50">

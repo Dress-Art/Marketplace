@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import SearchIcon from '@/components/icons/SearchIcon';
 import ShoppingCartIcon from '@/components/icons/ShoppingCartIcon';
+import UserIcon from '@/components/icons/UserIcon';
 
 export default function Header() {
     const pathname = usePathname();
@@ -39,6 +40,9 @@ export default function Header() {
                     </Link>
                     <Link href="/suivi" className={`font-medium transition-colors ${pathname.startsWith('/suivi') ? 'text-gray-900 underline underline-offset-4' : 'text-gray-600 hover:text-gray-900'}`}>
                         Suivi
+                    </Link>
+                    <Link href="/profile" className={`font-medium transition-colors ${pathname.startsWith('/profile') ? 'text-gray-900 underline underline-offset-4' : 'text-gray-600 hover:text-gray-900'}`}>
+                        Profil
                     </Link>
                 </nav>
 
@@ -92,6 +96,15 @@ export default function Header() {
                         <ShoppingCartIcon className="w-6 h-6 text-gray-700" />
                     </button>
 
+                    {/* Icône profil */}
+                    <Link
+                        href="/profile"
+                        className="p-2 hover:bg-gray-100 rounded-full transition-all cursor-pointer"
+                        aria-label="Profil"
+                    >
+                        <UserIcon className="w-6 h-6 text-gray-700" />
+                    </Link>
+
                     {/* Hamburger Menu Button (Mobile) */}
                     <button
                         className="md:hidden p-2 hover:bg-gray-100 rounded-full transition-colors z-50"
@@ -130,6 +143,13 @@ export default function Header() {
                         onClick={() => setIsMobileMenuOpen(false)}
                     >
                         Suivi
+                    </Link>
+                    <Link
+                        href="/profile"
+                        className={`font-medium transition-colors ${pathname.startsWith('/profile') ? 'text-gray-900 underline underline-offset-4' : 'text-gray-900 hover:text-gray-600'}`}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                        Profil
                     </Link>
                 </div>
             </div>

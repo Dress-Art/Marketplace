@@ -169,7 +169,7 @@ export default function ModelsPage() {
             {/* Main content - Masonry Layout Responsif */}
             <main className="min-h-screen pt-20">
                 {/* Filtres */}
-                <div className="px-4 mb-4">
+                <div className="px-6 md:px-10 mb-6">
                     <Filters
                         selectedType={selectedType}
                         selectedDesigner={selectedDesigner}
@@ -207,9 +207,9 @@ export default function ModelsPage() {
                 )}
 
                 {/* Vue XL (5 colonnes) */}
-                <div className="hidden xl:flex gap-4 p-4 items-start">
+                <div className="hidden xl:flex gap-6 px-6 md:px-10 py-6 items-start">
                     {columns5.map((column, colIndex) => (
-                        <div key={colIndex} className="flex-1 flex flex-col gap-4">
+                        <div key={colIndex} className="flex-1 flex flex-col gap-6">
                             {column.map((model) => (
                                 <ModelCard
                                     key={model.id}
@@ -227,9 +227,9 @@ export default function ModelsPage() {
                 </div>
 
                 {/* Vue LG (3 colonnes) */}
-                <div className="hidden lg:flex xl:hidden gap-4 p-4 items-start">
+                <div className="hidden lg:flex xl:hidden gap-6 px-6 md:px-10 py-6 items-start">
                     {columns3.map((column, colIndex) => (
-                        <div key={colIndex} className="flex-1 flex flex-col gap-4">
+                        <div key={colIndex} className="flex-1 flex flex-col gap-6">
                             {column.map((model) => (
                                 <ModelCard
                                     key={model.id}
@@ -247,9 +247,9 @@ export default function ModelsPage() {
                 </div>
 
                 {/* Vue MD (2 colonnes) hidden md:*/}
-                <div className="flex lg:hidden gap-4 p-4 items-start">
+                <div className="flex lg:hidden gap-6 px-6 md:px-10 py-6 items-start">
                     {columns2.map((column, colIndex) => (
-                        <div key={colIndex} className="flex-1 flex flex-col gap-4">
+                        <div key={colIndex} className="flex-1 flex flex-col gap-6">
                             {column.map((model) => (
                                 <ModelCard
                                     key={model.id}
