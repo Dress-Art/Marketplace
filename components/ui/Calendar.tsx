@@ -77,7 +77,7 @@ export default function Calendar({ selected, onSelect, className = '' }: Calenda
 
             {/* Days grid */}
             <div className="grid grid-cols-7 gap-1">
-                {days.map((day, dayIdx) => {
+                {days.map((day, _dayIdx) => {
                     const isSelected = selected ? isSameDay(day, selected) : false;
                     const isToday = isSameDay(day, today);
                     const isCurrentMonth = isSameMonth(day, currentMonth);
@@ -104,3 +104,4 @@ export default function Calendar({ selected, onSelect, className = '' }: Calenda
         </div>
     );
 }
+
