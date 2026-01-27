@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { PaymentService } from '@/lib/services/payment.service';
 import { OrderService } from '@/lib/services/order.service';
@@ -98,3 +99,4 @@ export async function GET() {
         timestamp: new Date().toISOString(),
     });
 }
+
