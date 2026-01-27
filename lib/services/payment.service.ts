@@ -1,4 +1,4 @@
-const { FedaPay, Transaction } = require('fedapay');
+import FedaPay, Transaction from 'fedapay';
 import type { CreatePaymentSessionParams, PaymentSessionResponse } from '@/lib/types/payment.types';
 
 // Initialize FedaPay - called once at module load
@@ -127,3 +127,4 @@ export class PaymentService {
         }
     }
 }
+
