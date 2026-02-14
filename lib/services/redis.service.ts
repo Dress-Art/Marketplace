@@ -3,12 +3,16 @@
  * Stores temporary payment sessions
  */
 
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-    (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL)!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+let supabaseClient: SupabaseClient | null = null;
+
+if (supabaseUrl && supabaseKey) {
+    supabaseClient = createClient(supabaseUrl, supabaseKey);
+}
 
 /**
  * Simple Redis-like interface using Supabase as backend
@@ -17,20 +21,24 @@ const supabase = createClient(
 class RedisService {
     private useSupabase = true; // Toggle to true to use Supabase, false for in-memory (dev only)
     private memoryStore = new Map<string, { value: string; expiresAt: number }>();
+    
+    private get supabase(): SupabaseClient | null {
+        return supabaseClient;
+    }
 
     /**
      * Set a key with expiration time (in seconds)
      */
     async setex(key: string, expirationSeconds: number, value: string): Promise<void> {
-        if (this.useSupabase) {
+        if (this.useSupabase && this.supabase) {
             const expiresAt = new Date(Date.now() + expirationSeconds * 1000).toISOString();
             
             // Upsert to handle duplicate keys
-            const { error } = await supabase
+            const { error } = await this.supabase
                 .from('pending_payments')
                 .upsert({
                     session_id: key,
-                    data: JSON.parse(value),
+                    data: JSON.parse(value) as Record<string, unknown>,
                     expires_at: expiresAt,
                 }, {
                     onConflict: 'session_id'
@@ -53,8 +61,8 @@ class RedisService {
      * Get value by key
      */
     async get(key: string): Promise<string | null> {
-        if (this.useSupabase) {
-            const { data, error } = await supabase
+        if (this.useSupabase && this.supabase) {
+            const { data, error } = await this.supabase
                 .from('pending_payments')
                 .select('data, expires_at')
                 .eq('session_id', key)
@@ -65,7 +73,7 @@ class RedisService {
             }
 
             // Check if expired
-            if (new Date(data.expires_at) < new Date()) {
+            if (new Date(data.expires_at as string) < new Date()) {
                 await this.del(key);
                 return null;
             }
@@ -90,8 +98,8 @@ class RedisService {
      * Delete a key
      */
     async del(key: string): Promise<void> {
-        if (this.useSupabase) {
-            await supabase
+        if (this.useSupabase && this.supabase) {
+            await this.supabase
                 .from('pending_payments')
                 .delete()
                 .eq('session_id', key);
@@ -104,8 +112,8 @@ class RedisService {
      * Clean up expired entries (call periodically)
      */
     async cleanup(): Promise<void> {
-        if (this.useSupabase) {
-            await supabase
+        if (this.useSupabase && this.supabase) {
+            await this.supabase
                 .from('pending_payments')
                 .delete()
                 .lt('expires_at', new Date().toISOString());
