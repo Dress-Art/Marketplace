@@ -21,6 +21,7 @@ export interface CreateOrderData {
     paymentStatus: 'pending' | 'partial' | 'paid';
     paymentType: 'full' | 'partial';
     status: 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
+    transactionId?: string; // FedaPay transaction ID for idempotence
 }
 
 export interface Order {
@@ -39,6 +40,7 @@ export interface Order {
     paymentStatus: string;
     paymentType: string;
     status: string;
+    transactionId?: string;
     createdAt: string;
     updatedAt: string;
 }

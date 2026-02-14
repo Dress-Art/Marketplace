@@ -70,6 +70,16 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
     const [userName, setUserName] = useState('');
     const [userPhone, setUserPhone] = useState('');
 
+    const phoneClean = useMemo(() => userPhone.replace(/\s|-/g, ''), [userPhone]);
+    const isPhoneValid = useMemo(() => (/^\+22901\d{8}$/.test(phoneClean) || /^\d{10}$/.test(phoneClean)), [phoneClean]);
+    const nameClean = useMemo(() => userName.trim().replace(/\s+/g, ' '), [userName]);
+    const isNameValid = useMemo(() => {
+        if (!nameClean) return false;
+        const parts = nameClean.split(' ');
+        if (parts.length < 2) return false;
+        return parts.every((p) => /^[A-Za-zÀ-ÖØ-öø-ÿ'’-]{2,}$/.test(p));
+    }, [nameClean]);
+
     // Type de paiement et état de traitement
     const [paymentType, setPaymentType] = useState<'full' | 'partial'>('partial');
     const [isProcessing, setIsProcessing] = useState(false);
@@ -156,7 +166,7 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
     };
 
     const handlePaymentConfirm = async () => {
-        if (!userName || !userPhone) {
+        if (!isNameValid || !isPhoneValid || !userName || !userPhone) {
             alert('Veuillez remplir tous les champs');
             return;
         }
@@ -177,7 +187,7 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
                     paymentType,
                     customerInfo: {
                         name: userName,
-                        phone: userPhone,
+                        phone: phoneClean,
                     },
                     orderDetails: {
                         modelId: model.id,
@@ -193,9 +203,6 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
             const data = await response.json();
 
             if (data.success && data.paymentUrl) {
-                // Store pending payment data temporarily in localStorage
-                localStorage.setItem('pendingPayment', JSON.stringify(data.pendingPayment));
-
                 // AC1: Redirect to payment session
                 window.location.href = data.paymentUrl;
             } else {
@@ -541,10 +548,13 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
                                         type="text"
                                         value={userName}
                                         onChange={(e) => setUserName(e.target.value)}
-                                        placeholder="Ex: Jean Dupont"
+                                        placeholder="Ex: Pierre DOSSOU"
                                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
                                         required
                                     />
+                                    {userName && !isNameValid && (
+                                        <div className="mt-1 text-sm text-red-600">Entrez votre nom complet (prénom + nom).</div>
+                                    )}
                                 </div>
                                 <div>
                                     <label className="block text-sm font-semibold mb-2">Numéro de téléphone *</label>
@@ -552,10 +562,13 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
                                         type="tel"
                                         value={userPhone}
                                         onChange={(e) => setUserPhone(e.target.value)}
-                                        placeholder="Ex: +229 XX XX XX XX"
+                                        placeholder="Ex: +229 01 XX XX XX XX"
                                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
                                         required
                                     />
+                                    {userPhone && !isPhoneValid && (
+                                        <div className="mt-1 text-sm text-red-600">Format : 10 chiffres (ex: 0164000001) ou +229 01 suivi de 8 chiffres (ex: +2290164000001).</div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -705,8 +718,8 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
                             </button>
                             <button
                                 onClick={handlePaymentConfirm}
-                                disabled={!userName || !userPhone || isProcessing}
-                                className={`flex-1 px-6 py-3 rounded-full font-semibold transition-all cursor-pointer flex items-center justify-center gap-2 ${userName && userPhone && !isProcessing
+                                disabled={!isNameValid || !userPhone || !isPhoneValid || isProcessing}
+                                className={`flex-1 px-6 py-3 rounded-full font-semibold transition-all cursor-pointer flex items-center justify-center gap-2 ${isNameValid && userPhone && isPhoneValid && !isProcessing
                                     ? 'bg-gray-900 text-white hover:bg-gray-800'
                                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                                     }`}

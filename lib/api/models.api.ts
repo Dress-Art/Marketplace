@@ -24,7 +24,7 @@ export async function fetchModels(
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({ error: 'Failed to fetch models' }));
-            throw new Error(errorData.error || 'Failed to fetch models');
+            throw new Error((errorData.error || 'Failed to fetch models') + ' (HTTP ' + response.status + ')');
         }
 
         const data = await response.json();

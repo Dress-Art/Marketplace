@@ -34,7 +34,7 @@ export default function ModelsPage() {
     const modelsData = useMemo(() => {
         return models.map(model => ({
             id: parseInt(model.id.substring(0, 8), 16),
-            image: '/models/placeholder.jpg',
+            image: '/models/placeholder.svg',
             titre: model.nom,
             description: model.description,
             prix: model.prix_base,

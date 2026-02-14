@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PaymentService } from '@/lib/services/payment.service';
 import type { CreatePaymentSessionParams, PendingPayment } from '@/lib/types/payment.types';
+import { redis } from '@/lib/services/redis.service';
 
 /**
  * AC1: Create payment session
@@ -35,30 +36,33 @@ export async function POST(request: NextRequest) {
         // Create payment session with FedaPay
         const session = await PaymentService.createSession(body);
 
-        // Store pending payment details temporarily (in production, use Redis or database)
-        // For now, we'll use a simple in-memory store or localStorage on client
+        // Prepare pending payment data
         const pendingPayment: PendingPayment = {
             sessionId: session.sessionId,
             customerInfo: body.customerInfo,
             orderDetails: {
                 ...body.orderDetails,
-                appointmentDate: body.orderDetails.appointmentDate?.toISOString(),
+                appointmentDate: body.orderDetails?.appointmentDate 
+                    ? new Date(body.orderDetails.appointmentDate as any).toISOString() 
+                    : undefined,
             },
             paymentType: body.paymentType,
             amount: session.amount,
             createdAt: new Date().toISOString(),
         };
 
-        // In production, store this in Redis with expiration
-        // await redis.setex(`pending_payment:${session.sessionId}`, 3600, JSON.stringify(pendingPayment));
+        // Store in Redis (Supabase backend) with 1 hour expiration
+        await redis.setex(
+            `pending_payment:${session.sessionId}`, 
+            3600, 
+            JSON.stringify(pendingPayment)
+        );
 
-        // For now, we'll pass it back to the client to store temporarily
         return NextResponse.json({
             success: true,
             sessionId: session.sessionId,
             paymentUrl: session.paymentUrl,
             amount: session.amount,
-            pendingPayment, // Client will store this temporarily
         });
 
     } catch (error) {

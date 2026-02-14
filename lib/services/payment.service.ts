@@ -1,15 +1,15 @@
-import FedaPay, Transaction from 'fedapay';
+import { FedaPay, Transaction } from 'fedapay';
+import crypto from 'crypto'; // Import crypto explicitement
 import type { CreatePaymentSessionParams, PaymentSessionResponse } from '@/lib/types/payment.types';
 
-// Initialize FedaPay - called once at module load
-// This is safe because we're using require() syntax which works in Node.js environment
+// Initialize FedaPay
 let fedapayInitialized = false;
 
 function initializeFedaPay() {
     if (fedapayInitialized) return;
 
     const apiKey = process.env.FEDAPAY_API_KEY;
-    const environment = process.env.FEDAPAY_ENVIRONMENT || 'sandbox';
+    const environment = process.env.FEDAPAY_ENVIRONMENT || 'live';
 
     if (apiKey) {
         FedaPay.setApiKey(apiKey);
@@ -21,110 +21,128 @@ function initializeFedaPay() {
 export class PaymentService {
     /**
      * Create a payment session with FedaPay
-     * AC1: Opens payment session when user selects full or partial payment
      */
     static async createSession(params: CreatePaymentSessionParams): Promise<PaymentSessionResponse> {
         try {
-            // Calculate amount based on payment type
-            const finalAmount = params.paymentType === 'partial'
-                ? Math.round(params.amount * 0.3) // 30% deposit
+            let rawAmount = params.paymentType === 'partial'
+                ? params.amount * 0.3 // 30% deposit
                 : params.amount;
+            
+            const finalAmount = Math.ceil(rawAmount);
 
-            // Check if FedaPay is configured
+            // Check configuration
             const apiKey = process.env.FEDAPAY_API_KEY;
 
             if (!apiKey) {
-                console.warn('FedaPay not configured - using placeholder for development');
+                console.warn('FedaPay not configured - Dev Mode');
                 return {
                     sessionId: `dev_${Date.now()}`,
-                    paymentUrl: '/payment/success?dev=true',
+                    paymentUrl: `/payment/success?dev=true&amount=${finalAmount}`,
                     amount: finalAmount
                 };
             }
 
-            // Initialize FedaPay
             initializeFedaPay();
+
+            const siteBase = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').replace(/\/$/, '');
+            const callbackUrl = process.env.FEDAPAY_CALLBACK_URL || `${siteBase}/payment/success`;
+
+            // Gestion du nom (Fallback plus robuste)
+            const fullName = params.customerInfo.name.trim();
+            const spaceIndex = fullName.indexOf(' ');
+            const firstname = spaceIndex > -1 ? fullName.substring(0, spaceIndex) : fullName;
+            const lastname = spaceIndex > -1 ? fullName.substring(spaceIndex + 1) : 'Client';
 
             // Create FedaPay transaction
             const transaction = await Transaction.create({
                 description: `Commande DressArt - ${params.paymentType === 'partial' ? 'Acompte 30%' : 'Paiement complet'}`,
                 amount: finalAmount,
-                currency: {
-                    iso: 'XOF' // Franc CFA
+                currency: { iso: 'XOF' },
+                callback_url: callbackUrl,
+                custom_metadata: {
+                    modelId: params.orderDetails.modelId || '',
+                    paymentType: params.paymentType,
+                    appointmentDate: params.orderDetails.appointmentDate ? new Date(params.orderDetails.appointmentDate as any).toISOString() : '',
                 },
-                callback_url: `${process.env.NEXT_PUBLIC_URL}/api/payment/callback`,
                 customer: {
-                    firstname: params.customerInfo.name.split(' ')[0],
-                    lastname: params.customerInfo.name.split(' ').slice(1).join(' ') || params.customerInfo.name,
-                    email: `${params.customerInfo.phone}@dressart.com`,
+                    firstname: firstname,
+                    lastname: lastname,
+                    email: params.customerInfo.email || undefined, // Laisser undefined si vide, FedaPay gère ça si le tel est présent
                     phone_number: {
                         number: params.customerInfo.phone,
-                        country: 'bj'
+                        country: 'bj' // S'assurer que le numéro n'a pas déjà l'indicatif +229 si on force 'bj'
                     }
                 }
             });
 
             // Generate payment token
             const token = await transaction.generateToken();
+            
+            // CORRECTION 2: Extraction sécurisée de l'URL
+            // @ts-ignore: Le type retourné par FedaPay SDK peut être imprécis
+            const paymentUrl = token.url; 
+
+            if (!paymentUrl) {
+                throw new Error('FedaPay token generation failed: URL missing');
+            }
 
             return {
-                sessionId: transaction.id,
-                paymentUrl: token.url,
+                sessionId: String(transaction.id), // S'assurer que c'est une string
+                paymentUrl: paymentUrl,
                 amount: finalAmount
             };
+
         } catch (error) {
-            console.error('FedaPay session creation error:', error);
-            throw new Error('Failed to create payment session');
+            const message = error instanceof Error ? error.message : 'Unknown error';
+            console.error('❌ FedaPay Session Error:', message, error);
+            throw new Error(`Impossible de créer la session de paiement: ${message}`);
         }
     }
 
     /**
      * Verify webhook signature from FedaPay
+     * CORRECTION 3: Comparaison sécurisée (Timing Safe)
      */
     static verifyWebhookSignature(payload: string, signature: string): boolean {
         try {
-            const crypto = require('crypto');
             const secret = process.env.FEDAPAY_WEBHOOK_SECRET;
 
             if (!secret) {
-                console.warn('FEDAPAY_WEBHOOK_SECRET not configured');
+                console.warn('FEDAPAY_WEBHOOK_SECRET missing');
                 return false;
             }
 
-            const expectedSignature = crypto
-                .createHmac('sha256', secret)
-                .update(payload)
-                .digest('hex');
+            const hmac = crypto.createHmac('sha256', secret);
+            const expectedSignature = hmac.update(payload).digest('hex');
 
-            return signature === expectedSignature;
+            const signatureBuffer = Buffer.from(signature);
+            const expectedBuffer = Buffer.from(expectedSignature);
+
+            // Évite les timing attacks en comparant à temps constant
+            return signatureBuffer.length === expectedBuffer.length && 
+                   crypto.timingSafeEqual(signatureBuffer, expectedBuffer);
+
         } catch (error) {
-            console.error('Webhook signature verification error:', error);
+            console.error('Webhook verification error:', error);
             return false;
         }
     }
 
     /**
-     * Get transaction status from FedaPay
+     * Get transaction status
      */
     static async getTransactionStatus(transactionId: string) {
         try {
-            const apiKey = process.env.FEDAPAY_API_KEY;
-
-            if (!apiKey) {
-                console.warn('FedaPay not configured');
-                return null;
-            }
-
-            // Initialize FedaPay
+            if (!process.env.FEDAPAY_API_KEY) return null;
             initializeFedaPay();
-
-            // Retrieve transaction
+            
+            // Note: transactionId doit être un ID FedaPay valide (souvent un entier ID ou string ID)
             const transaction = await Transaction.retrieve(transactionId);
             return transaction;
         } catch (error) {
-            console.error('Failed to retrieve transaction:', error);
-            throw new Error('Failed to get transaction status');
+            console.error('Fetch transaction error:', error);
+            // Ne pas throw ici permet au front-end de gérer le "null" plus doucement
+            return null; 
         }
     }
 }
-

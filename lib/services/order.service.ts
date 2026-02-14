@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import type { CreateOrderData, Order } from '@/lib/types/order.types';
 
 const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL)!,
     process.env.SUPABASE_SERVICE_ROLE_KEY! // Use service role for server-side operations
 );
 
@@ -42,6 +42,7 @@ export class OrderService {
                     payment_status: data.paymentStatus,
                     payment_type: data.paymentType,
                     status: data.status,
+                    transaction_id: data.transactionId || null,
                 })
                 .select()
                 .single();

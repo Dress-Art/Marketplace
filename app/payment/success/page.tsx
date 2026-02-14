@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Header from '@/components/models/Header';
+import PaymentGuard from './PaymentGuard';
 
 export const metadata = {
     title: 'Paiement Réussi | DressArt',
@@ -10,6 +11,7 @@ export default function PaymentSuccessPage() {
     return (
         <div className="min-h-screen bg-gray-50">
             <Header />
+            <PaymentGuard />
 
             <main className="min-h-screen pt-24 pb-12 px-4">
                 <div className="max-w-md mx-auto">

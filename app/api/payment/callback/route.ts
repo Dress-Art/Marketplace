@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PaymentService } from '@/lib/services/payment.service';
 import { OrderService } from '@/lib/services/order.service';
 import type { FedaPayWebhookPayload } from '@/lib/types/payment.types';
+import { redis } from '@/lib/services/redis.service';
+import { supabase } from '@/lib/services/supabase.service';
 
 /**
  * AC2: Handle payment callback and create order
@@ -17,7 +19,7 @@ export async function POST(request: NextRequest) {
         const signature = request.headers.get('x-fedapay-signature') || '';
         const isValid = PaymentService.verifyWebhookSignature(body, signature);
 
-        if (!isValid && process.env.NODE_ENV === 'production') {
+        if (!isValid && process.env.FEDAPAY_WEBHOOK_SECRET) {
             console.error('Invalid webhook signature');
             return NextResponse.json(
                 { error: 'Invalid signature' },
@@ -29,44 +31,62 @@ export async function POST(request: NextRequest) {
         if (payload.transaction.status === 'approved') {
             console.log('Payment approved:', payload.transaction.id);
 
-            // Retrieve pending payment details
-            // In production: const pendingPaymentData = await redis.get(`pending_payment:${payload.id}`);
-            // For now, we'll get it from the transaction description or custom_metadata
+            // Check for duplicate (idempotence)
+            const { data: existingOrder } = await supabase
+                .from('orders')
+                .select('order_number')
+                .eq('transaction_id', payload.transaction.id)
+                .single();
 
-            // Get transaction details from FedaPay to retrieve custom metadata
-            const transaction = await PaymentService.getTransactionStatus(payload.transaction.id);
+            if (existingOrder) {
+                console.log('Order already exists:', existingOrder.order_number);
+                return NextResponse.json({
+                    success: true,
+                    orderNumber: existingOrder.order_number,
+                });
+            }
 
-            // Extract order details from transaction metadata
-            // Note: In production, you should store these in Redis/DB when creating session
-            const customMetadata = (transaction as any).custom_metadata || {};
+            // Retrieve pending payment details from Redis
+            const pendingPaymentData = await redis.get(`pending_payment:${payload.transaction.id}`);
+
+            if (!pendingPaymentData) {
+                console.error('Pending payment not found for transaction:', payload.transaction.id);
+                return NextResponse.json(
+                    { error: 'Payment data not found' },
+                    { status: 404 }
+                );
+            }
+
+            const pendingPayment = JSON.parse(pendingPaymentData);
 
             // Create order in database
             const order = await OrderService.createOrder({
-                customerName: payload.transaction.customer.firstname + ' ' + payload.transaction.customer.lastname,
-                customerPhone: payload.transaction.customer.phone_number.number,
-                modelId: customMetadata.modelId || 0,
-                fabricId: customMetadata.fabricId || null,
-                measurements: customMetadata.measurements || null,
-                appointmentDate: customMetadata.appointmentDate || null,
-                location: customMetadata.location || 'cotonou',
-                specificLocation: customMetadata.specificLocation || null,
+                customerName: pendingPayment.customerInfo.name,
+                customerPhone: pendingPayment.customerInfo.phone,
+                modelId: pendingPayment.orderDetails.modelId,
+                fabricId: pendingPayment.orderDetails.fabricId,
+                measurements: pendingPayment.orderDetails.measurements || null,
+                appointmentDate: pendingPayment.orderDetails.appointmentDate || null,
+                location: pendingPayment.orderDetails.location,
+                specificLocation: pendingPayment.orderDetails.specificLocation || null,
                 totalAmount: payload.transaction.amount,
                 paidAmount: payload.transaction.amount,
-                paymentStatus: customMetadata.paymentType === 'full' ? 'paid' : 'partial',
-                paymentType: customMetadata.paymentType || 'full',
+                paymentStatus: pendingPayment.paymentType === 'full' ? 'paid' : 'partial',
+                paymentType: pendingPayment.paymentType,
                 status: 'confirmed',
+                transactionId: payload.transaction.id,
             });
 
             console.log('Order created:', order.orderNumber);
+
+            // Clean up pending payment
+            await redis.del(`pending_payment:${payload.transaction.id}`);
 
             // TODO: Send SMS confirmation
             // await sendSMS({
             //     to: order.customerPhone,
             //     message: `Commande ${order.orderNumber} confirmée! Montant: ${order.paidAmount} FCFA. Suivez votre commande: ${process.env.NEXT_PUBLIC_URL}/suivi`
             // });
-
-            // Clean up pending payment
-            // await redis.del(`pending_payment:${payload.id}`);
 
             return NextResponse.json({
                 success: true,

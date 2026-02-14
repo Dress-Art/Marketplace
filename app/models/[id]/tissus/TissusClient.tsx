@@ -86,7 +86,7 @@ export default function TissusClient({ id }: TissusClientProps) {
         texture: fabric.texture || '',
         prix: fabric.prix_metre,
         // Use placeholder until real images are added to /public/images/tissus/
-        image: '/models/placeholder.jpg',
+        image: '/models/placeholder.svg',
         width: 400,
         height: 300,
     }));
@@ -117,7 +117,7 @@ export default function TissusClient({ id }: TissusClientProps) {
                         <div className="lg:sticky lg:top-20 p-4 border border-gray-300 rounded-3xl">
                             <div className="relative w-full rounded-2xl overflow-hidden">
                                 <Image
-                                    src={model.image_url || '/models/placeholder.jpg'}
+                                    src={model.image_url || '/models/placeholder.svg'}
                                     alt={model.nom}
                                     width={400}
                                     height={400}

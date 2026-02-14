@@ -16,7 +16,7 @@ export default function ModelsSection() {
     const displayModels = useMemo(() => {
         const converted = models.slice(0, 5).map(model => ({
             id: parseInt(model.id.substring(0, 8), 16), // Convert UUID to number
-            image: '/models/placeholder.jpg', // Placeholder for now
+            image: '/models/placeholder.svg', // Placeholder for now
             titre: model.nom,
             description: model.description,
             prix: model.prix_base,
