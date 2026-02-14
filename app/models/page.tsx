@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/models/Header';
 import ModelCard from '@/components/models/ModelCard';
@@ -25,7 +25,7 @@ export default function ModelsPage() {
     const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
     // Fetch models from API
-    const { models, loading: apiLoading } = useModels({
+    const { models } = useModels({
         page: 1,
         per_page: 100, // Get all for client-side filtering
     });
@@ -92,7 +92,7 @@ export default function ModelsPage() {
     const hasMore = displayCount < filteredModels.length;
 
     // Fonction pour charger plus de modèles
-    const loadMore = () => {
+    const loadMore = useCallback(() => {
         if (isLoading || !hasMore) return;
 
         setIsLoading(true);
@@ -101,7 +101,7 @@ export default function ModelsPage() {
             setDisplayCount(prev => prev + ITEMS_PER_PAGE);
             setIsLoading(false);
         }, 500);
-    };
+    }, [isLoading, hasMore]);
 
     // Intersection Observer pour détecter le scroll
     useEffect(() => {
@@ -125,7 +125,7 @@ export default function ModelsPage() {
                 observerRef.current.disconnect();
             }
         };
-    }, [hasMore, isLoading]);
+    }, [hasMore, isLoading, loadMore]);
 
     // Distribution pour 5 colonnes (XL)
     const columns5 = Array.from({ length: 5 }, () => [] as typeof modelsData);
@@ -144,9 +144,6 @@ export default function ModelsPage() {
     displayedModels.forEach((model, index) => {
         columns2[index % 2].push(model);
     });
-
-    // Distribution pour 1 colonne (Mobile/SM)
-    const columns1 = [displayedModels];
 
     return (
         <div className="min-h-screen relative">

@@ -24,7 +24,7 @@ export class PaymentService {
      */
     static async createSession(params: CreatePaymentSessionParams): Promise<PaymentSessionResponse> {
         try {
-            let rawAmount = params.paymentType === 'partial'
+            const rawAmount = params.paymentType === 'partial'
                 ? params.amount * 0.3 // 30% deposit
                 : params.amount;
             
@@ -62,7 +62,7 @@ export class PaymentService {
                 custom_metadata: {
                     modelId: params.orderDetails.modelId || '',
                     paymentType: params.paymentType,
-                    appointmentDate: params.orderDetails.appointmentDate ? new Date(params.orderDetails.appointmentDate as any).toISOString() : '',
+                    appointmentDate: params.orderDetails.appointmentDate ? new Date(params.orderDetails.appointmentDate).toISOString() : '',
                 },
                 customer: {
                     firstname: firstname,
@@ -78,9 +78,8 @@ export class PaymentService {
             // Generate payment token
             const token = await transaction.generateToken();
             
-            // CORRECTION 2: Extraction sécurisée de l'URL
-            // @ts-ignore: Le type retourné par FedaPay SDK peut être imprécis
-            const paymentUrl = token.url; 
+            // Extraction sécurisée de l'URL
+            const paymentUrl = token.url as string; 
 
             if (!paymentUrl) {
                 throw new Error('FedaPay token generation failed: URL missing');

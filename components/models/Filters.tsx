@@ -26,7 +26,6 @@ export default function Filters({
     onDesignerChange,
     onPriceRangeChange,
     types,
-    designers,
 }: FiltersProps) {
     const hasActiveFilters = selectedType || selectedDesigner || priceRange;
     const activeFilterCount = [selectedType, priceRange].filter(Boolean).length;

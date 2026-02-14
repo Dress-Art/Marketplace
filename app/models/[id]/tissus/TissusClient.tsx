@@ -144,7 +144,7 @@ export default function TissusClient({ id }: TissusClientProps) {
                                         <div className="flex items-center gap-2 mb-2">
                                             <FabricIcon size={24} className="text-gray-900" />
                                             <h3 className="text-xl font-bold group-hover:text-gray-900">
-                                                J'ai mon propre tissu
+                                                J&apos;ai mon propre tissu
                                             </h3>
                                         </div>
                                         <p className="text-gray-600">

@@ -16,7 +16,7 @@ export default function CTASection() {
                     Votre Style, Votre Signature
                 </h2>
                 <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto font-light">
-                    Ne vous contentez pas de suivre la mode. Créez la vôtre avec nos artisans experts et nos tissus d'exception.
+                    Ne vous contentez pas de suivre la mode. Créez la vôtre avec nos artisans experts et nos tissus d&apos;exception.
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">

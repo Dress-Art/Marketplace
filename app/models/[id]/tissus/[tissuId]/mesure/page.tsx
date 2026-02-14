@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import MesureClient from './MesureClient';
-import { seoConfig } from '@/lib/seo/config';
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string; tissuId: string }> }): Promise<Metadata> {
     const { id, tissuId } = await params;

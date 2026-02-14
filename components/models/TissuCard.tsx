@@ -1,18 +1,44 @@
 import Image from 'next/image';
 
+// Type flexible pour accepter les tissus de l'API ou les données locales
+interface TissuData {
+    id: number;
+    nom?: string;
+    titre?: string;
+    texture?: string | null;
+    qualite?: string;
+    couleur?: string;
+    image_url?: string;
+    image?: string;
+    prix_metre?: number;
+    prix?: number;
+    stock_disponible?: boolean;
+    width?: number;
+    height?: number;
+}
+
 interface TissuCardProps {
-    tissu: any;
+    tissu: TissuData;
     modelId: string;
     isSelected?: boolean;
     onSelect?: (id: number) => void;
 }
 
-export default function TissuCard({ tissu, modelId, isSelected = false, onSelect }: TissuCardProps) {
+export default function TissuCard({ tissu, isSelected = false, onSelect }: TissuCardProps) {
     const handleClick = () => {
         if (onSelect) {
             onSelect(tissu.id);
         }
     };
+
+    // Support both local data format and API format
+    const imageUrl = tissu.image || tissu.image_url || '';
+    const title = tissu.titre || tissu.nom || '';
+    const price = tissu.prix || tissu.prix_metre || 0;
+    const color = tissu.couleur || '';
+    const quality = tissu.qualite || tissu.texture || '';
+    const imgWidth = tissu.width || 400;
+    const imgHeight = tissu.height || 600;
 
     return (
         <div
@@ -28,16 +54,16 @@ export default function TissuCard({ tissu, modelId, isSelected = false, onSelect
                 <div
                     className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-shimmer rounded-2xl"
                     style={{
-                        aspectRatio: `${tissu.width} / ${tissu.height}`,
+                        aspectRatio: `${imgWidth} / ${imgHeight}`,
                         backgroundSize: '200% 100%'
                     }}
                 />
 
                 <Image
-                    src={tissu.image}
-                    alt={tissu.titre}
-                    width={tissu.width}
-                    height={tissu.height}
+                    src={imageUrl}
+                    alt={title}
+                    width={imgWidth}
+                    height={imgHeight}
                     className="w-full h-auto object-cover rounded-2xl relative"
                     loading="lazy"
                 />
@@ -69,16 +95,16 @@ export default function TissuCard({ tissu, modelId, isSelected = false, onSelect
                 }`}>
                 <div className="absolute bottom-0 left-0 right-0 p-4 backdrop-blur-sm">
                     <h3 className="text-white text-base font-bold mb-1">
-                        {tissu.titre}
+                        {title}
                     </h3>
                     <p className="text-white/90 text-xs mb-1">
-                        Qualité: {tissu.qualite}
+                        Qualité: {quality}
                     </p>
                     <p className="text-white/90 text-xs mb-2">
-                        Couleur: {tissu.couleur}
+                        Couleur: {color}
                     </p>
                     <p className="text-white font-bold text-sm">
-                        {tissu.prix.toLocaleString('fr-FR')} FCFA
+                        {price.toLocaleString('fr-FR')} FCFA
                     </p>
                 </div>
             </div>
@@ -90,7 +116,7 @@ export default function TissuCard({ tissu, modelId, isSelected = false, onSelect
                 }`}>
                 <span className={`font-semibold text-xs ${isSelected ? 'text-white' : 'text-gray-900'
                     }`}>
-                    {tissu.prix.toLocaleString('fr-FR')} FCFA
+                    {price.toLocaleString('fr-FR')} FCFA
                 </span>
             </div>
         </div>

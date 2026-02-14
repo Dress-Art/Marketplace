@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
             orderDetails: {
                 ...body.orderDetails,
                 appointmentDate: body.orderDetails?.appointmentDate 
-                    ? new Date(body.orderDetails.appointmentDate as any).toISOString() 
+                    ? new Date(body.orderDetails.appointmentDate).toISOString() 
                     : undefined,
             },
             paymentType: body.paymentType,

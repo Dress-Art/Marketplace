@@ -56,7 +56,6 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
 
     const [mode, setMode] = useState<'mesure' | 'rendez-vous' | null>(null);
     const [selectedDate, setSelectedDate] = useState<Date>();
-    const [showConfirmation, setShowConfirmation] = useState(false);
     const [saveIndicator, setSaveIndicator] = useState(false);
 
     // États pour la localisation
@@ -149,8 +148,6 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
 
     // Calcul des frais
     const deliveryFee = location === 'outside' ? 500 : 0;
-    const deposit = isOwnFabric ? 0 : (tissu ? tissu.prix_metre * 0.3 : 0); // 30% d'acompte
-    const totalAmount = deposit + deliveryFee;
 
     const handleMesureSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -266,7 +263,7 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
                                 <div className="text-6xl mb-4">✨</div>
                                 <h3 className="text-xl font-bold mb-2">Votre propre tissu</h3>
                                 <p className="text-gray-600">
-                                    Vous avez choisi d'utiliser votre propre tissu. N'oubliez pas de l'apporter lors de votre rendez-vous ou de votre passage en atelier.
+                                    Vous avez choisi d&apos;utiliser votre propre tissu. N&apos;oubliez pas de l&apos;apporter lors de votre rendez-vous ou de votre passage en atelier.
                                 </p>
                             </div>
                         ) : tissu ? (
@@ -449,7 +446,7 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-semibold mb-2">Largeur d'épaules (cm)</label>
+                                    <label className="block text-sm font-semibold mb-2">Largeur d&apos;épaules (cm)</label>
                                     <input
                                         type="number"
                                         value={mesures.largeurEpaules}
@@ -518,14 +515,6 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
                                 >
                                     Confirmer le rendez-vous
                                 </button>
-                            </div>
-                        )}
-
-                        {/* Message de confirmation */}
-                        {showConfirmation && (
-                            <div className="fixed bottom-8 right-8 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg animate-fade-in">
-                                <p className="font-semibold">✓ Confirmation enregistrée !</p>
-                                <p className="text-sm">Nous vous contacterons bientôt.</p>
                             </div>
                         )}
                     </div>

@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unable to retrieve transaction' }, { status: 404 });
     }
 
-    const status = (tx as any).status || null;
+    const status = (tx as Record<string, unknown>).status as string | null;
     const approved = status === 'approved';
 
     return NextResponse.json({ success: true, transactionId, status, approved, transaction: tx });

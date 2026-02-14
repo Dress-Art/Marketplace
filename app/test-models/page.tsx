@@ -2,8 +2,23 @@
 
 import { useState } from 'react';
 
+interface ModelsApiResponse {
+    data?: Array<{
+        id: number;
+        nom: string;
+        prix_base: number;
+        image_url: string;
+    }>;
+    pagination?: {
+        total: number;
+        page: number;
+        per_page: number;
+        total_pages: number;
+    };
+}
+
 export default function TestModelsPage() {
-    const [data, setData] = useState<any>(null);
+    const [data, setData] = useState<ModelsApiResponse | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 

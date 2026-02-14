@@ -60,7 +60,7 @@ export interface PendingPayment {
     orderDetails: {
         modelId: number;
         fabricId: number | null;
-        measurements?: any;
+        measurements?: Record<string, string>;
         appointmentDate?: string;
         location: string;
         specificLocation?: string;

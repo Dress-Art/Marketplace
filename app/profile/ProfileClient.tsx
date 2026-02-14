@@ -110,7 +110,7 @@ export default function ProfileClient() {
                                     ))
                                 ) : (
                                     <div className="text-center py-12">
-                                        <p className="text-gray-500">Vous n'avez pas encore passé de commande.</p>
+                                        <p className="text-gray-500">Vous n&apos;avez pas encore passé de commande.</p>
                                         <Link
                                             href="/models"
                                             className="inline-block mt-4 bg-gray-900 text-white py-3 px-8 rounded-full font-semibold hover:bg-gray-800 transition-all"

@@ -1,6 +1,7 @@
 'use client';
 
 import { useFabrics } from '@/lib/hooks/useFabrics';
+import Image from 'next/image';
 
 export default function TestFabricsPage() {
     const { fabrics, meta, loading, error } = useFabrics({
@@ -90,11 +91,12 @@ export default function TestFabricsPage() {
                                 >
                                     {/* Image */}
                                     {fabric.image_url && (
-                                        <div className="mb-3 h-40 bg-gray-100 rounded overflow-hidden">
-                                            <img
+                                        <div className="mb-3 h-40 bg-gray-100 rounded overflow-hidden relative">
+                                            <Image
                                                 src={fabric.image_url}
                                                 alt={fabric.nom}
-                                                className="w-full h-full object-cover"
+                                                fill
+                                                className="object-cover"
                                             />
                                         </div>
                                     )}

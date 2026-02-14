@@ -83,7 +83,7 @@ export default function Hero() {
                 {/* Mobile/Tablet Layout Adjustments */}
                 <div className="lg:hidden flex flex-col items-center gap-6 mt-8 z-20 relative pb-10">
                     <p className="text-center text-gray-600 max-w-md px-4">
-                        L'élégance du sur-mesure à portée de main.
+                        L&apos;élégance du sur-mesure à portée de main.
                     </p>
                     <div className="flex gap-4">
                         <Link

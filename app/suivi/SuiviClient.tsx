@@ -217,9 +217,9 @@ export default function SuiviClient() {
                             <h3 className="font-bold text-blue-900 mb-2">Comment suivre votre commande ?</h3>
                             <ul className="text-sm text-blue-800 space-y-2">
                                 <li>• Vous avez reçu un numéro de commande par SMS après validation de votre paiement</li>
-                                <li>• Utilisez ce numéro pour suivre l'état actuel de votre commande</li>
-                                <li>• Le suivi vous permet de voir l'état de fabrication et la date estimée de livraison</li>
-                                <li>• Cliquez sur "Voir toutes mes commandes" pour consulter votre historique complet</li>
+                                <li>• Utilisez ce numéro pour suivre l&apos;état actuel de votre commande</li>
+                                <li>• Le suivi vous permet de voir l&apos;état de fabrication et la date estimée de livraison</li>
+                                <li>• Cliquez sur &quot;Voir toutes mes commandes&quot; pour consulter votre historique complet</li>
                             </ul>
                             
                             {/* Exemples de numéros de commande pour tester */}

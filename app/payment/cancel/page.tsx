@@ -26,7 +26,7 @@ export default function PaymentCancelPage() {
                             Paiement annulé
                         </h1>
                         <p className="text-gray-600 mb-8">
-                            Votre paiement a été annulé. Aucun montant n'a été débité de votre compte.
+                            Votre paiement a été annulé. Aucun montant n&apos;a été débité de votre compte.
                         </p>
 
                         {/* Info Box */}
@@ -35,7 +35,7 @@ export default function PaymentCancelPage() {
                             <ul className="text-sm text-gray-600 space-y-1">
                                 <li>• Vous pouvez réessayer le paiement</li>
                                 <li>• Vérifiez vos informations bancaires</li>
-                                <li>• Contactez-nous si vous avez besoin d'aide</li>
+                                <li>• Contactez-nous si vous avez besoin d&apos;aide</li>
                             </ul>
                         </div>
 
@@ -51,7 +51,7 @@ export default function PaymentCancelPage() {
                                 href="/"
                                 className="block w-full bg-white text-gray-900 py-3 px-6 rounded-full font-semibold border-2 border-gray-900 hover:bg-gray-50 transition-all"
                             >
-                                Retour à l'accueil
+                                Retour à l&apos;accueil
                             </Link>
                         </div>
                     </div>
