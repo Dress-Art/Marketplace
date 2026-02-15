@@ -26,6 +26,7 @@ cp env.example .env.local
 ```
 
 **Get your Supabase credentials:**
+
 1. Go to [supabase.com](https://supabase.com) and create a project
 2. Go to Project Settings → API
 3. Copy these values to `.env.local`:
@@ -64,6 +65,7 @@ To enable FedaPay payments (optional for development):
 1. Sign up at [fedapay.com](https://fedapay.com)
 2. Get your API keys from the dashboard
 3. Add to `.env.local`:
+
 ```bash
 FEDAPAY_API_KEY=sk_sandbox_xxxxx
 FEDAPAY_ENVIRONMENT=sandbox
