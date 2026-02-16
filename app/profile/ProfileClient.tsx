@@ -3,27 +3,11 @@
 import Header from "@/components/landing-page/Header";
 import CalendarIcon from "@/components/icons/CalendarIcon";
 import TrackingIcon from "@/components/icons/TrackingIcon";
-import { ordersData, Order } from "../suivi/orders-data";
+import OrderStatusBadge from "@/components/ui/OrderStatusBadge";
+import { ordersData } from "@/lib/constants/suivi-orders";
 import Link from "next/link";
 
 export default function ProfileClient() {
-  const getStatusColor = (status: Order["status"]) => {
-    switch (status) {
-      case "En attente":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "En cours":
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      case "En couture":
-        return "bg-purple-100 text-purple-800 border-purple-200";
-      case "Terminé":
-        return "bg-green-100 text-green-800 border-green-200";
-      case "Livré":
-        return "bg-gray-100 text-gray-800 border-gray-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -77,11 +61,7 @@ export default function ProfileClient() {
                             <span className="text-lg font-bold text-gray-900">
                               {order.orderNumber}
                             </span>
-                            <span
-                              className={`px-3 py-1 rounded-full border text-xs font-semibold ${getStatusColor(order.status)}`}
-                            >
-                              {order.status}
-                            </span>
+                            <OrderStatusBadge status={order.status} size="sm" />
                           </div>
                           <p className="text-sm text-gray-500 flex items-center gap-1">
                             <CalendarIcon size={14} />

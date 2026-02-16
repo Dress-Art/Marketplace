@@ -1,21 +1,10 @@
-// Données mockées pour les commandes
-export interface Order {
-  id: string;
-  orderNumber: string;
-  date: string;
-  status: "En attente" | "En cours" | "En couture" | "Terminé" | "Livré";
-  modelName: string;
-  fabricName: string;
-  totalAmount: number;
-  estimatedDelivery: string;
-  timeline: {
-    step: string;
-    date: string;
-    completed: boolean;
-  }[];
-}
+import type { SuiviOrder } from "@/lib/types/suivi.types";
 
-export const ordersData: Order[] = [
+/**
+ * Mock orders for development and "Voir toutes mes commandes" list.
+ * In production with auth, replace with API fetch.
+ */
+export const ordersData: SuiviOrder[] = [
   {
     id: "1",
     orderNumber: "CMD-2024-001",
@@ -71,3 +60,4 @@ export const ordersData: Order[] = [
     ],
   },
 ];
+
