@@ -85,14 +85,15 @@ export default function TissusClient({ id }: TissusClientProps) {
 
   // Convert API Fabric to Tissu format for TissuCard component
   const tissusData = fabrics.map((fabric) => ({
-    id: parseInt(fabric.id.substring(0, 8), 16) || 0, // Convert UUID to number for ID
+    id: parseInt(fabric.id.substring(0, 8), 16) || 0,
     nom: fabric.nom,
     texture: fabric.texture || "",
+    couleur: fabric.couleur || "",
+    qualite: fabric.texture || "",
     prix: fabric.prix_metre,
-    // Use placeholder until real images are added to /public/images/tissus/
-    image: "/models/placeholder.svg",
+    image: fabric.image_url || "/models/placeholder.svg",
     width: 400,
-    height: 300,
+    height: 500,
   }));
 
   return (
@@ -115,29 +116,30 @@ export default function TissusClient({ id }: TissusClientProps) {
 
       {/* Main content */}
       <main className="min-h-screen pt-20">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 p-4">
-          {/* Colonne modèle (1 colonne) */}
-          <div className="col-span-1 lg:col-span-1">
-            <div className="lg:sticky lg:top-20 p-4 border border-gray-300 rounded-3xl">
-              <div className="relative w-full rounded-2xl overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 p-4 lg:p-6">
+          {/* Colonne modèle (2 colonnes sur 5) */}
+          <div className="col-span-1 lg:col-span-2">
+            <div className="lg:sticky lg:top-24 border border-gray-200 rounded-3xl overflow-hidden shadow-sm">
+              <div className="relative w-full">
                 <Image
                   src={model.image_url || "/models/placeholder.svg"}
                   alt={model.nom}
-                  width={400}
-                  height={400}
+                  width={600}
+                  height={750}
                   className="w-full h-auto object-cover"
+                  priority
                 />
               </div>
-              <div className="mt-4">
-                <h1 className="text-3xl font-bold mb-2">{model.nom}</h1>
-                <p className="text-gray-600">{model.description}</p>
-                <p className="text-xl font-bold mt-2">{model.prix_base} FCFA</p>
+              <div className="p-5">
+                <h1 className="text-2xl font-bold mb-1">{model.nom}</h1>
+                <p className="text-gray-500 text-sm mb-3">{model.description}</p>
+                <p className="text-xl font-bold">{model.prix_base.toLocaleString("fr-FR")} FCFA</p>
               </div>
             </div>
           </div>
 
-          {/* Colonnes tissus (Responsive) */}
-          <div className="col-span-1 lg:col-span-4">
+          {/* Colonnes tissus (3 colonnes sur 5) */}
+          <div className="col-span-1 lg:col-span-3">
             <h2 className="text-2xl font-bold mb-6">Choisissez votre tissu</h2>
 
             {/* Option "J'ai mon propre tissu" */}
@@ -216,30 +218,9 @@ export default function TissusClient({ id }: TissusClientProps) {
               </div>
             )}
 
-            {/* Vue XL (4 colonnes) */}
+            {/* Vue LG+ (3 colonnes) */}
             {!loading && !error && (
-              <div className="hidden xl:flex gap-4 items-start">
-                {Array.from({ length: 4 }).map((_, colIndex) => (
-                  <div key={colIndex} className="flex-1 flex flex-col gap-4">
-                    {tissusData
-                      .filter((_, index) => index % 4 === colIndex)
-                      .map((tissu) => (
-                        <TissuCard
-                          key={tissu.id}
-                          tissu={tissu}
-                          modelId={id}
-                          isSelected={selectedTissuId === tissu.id}
-                          onSelect={handleSelectTissu}
-                        />
-                      ))}
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Vue LG (3 colonnes) */}
-            {!loading && !error && (
-              <div className="hidden lg:flex xl:hidden gap-4 items-start">
+              <div className="hidden lg:flex gap-4 items-start">
                 {Array.from({ length: 3 }).map((_, colIndex) => (
                   <div key={colIndex} className="flex-1 flex flex-col gap-4">
                     {tissusData

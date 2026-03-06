@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { getCanonicalUrl } from "@/lib/seo/config";
 import SuiviClient from "./SuiviClient";
@@ -16,5 +17,9 @@ export const metadata: Metadata = {
 };
 
 export default function SuiviPage() {
-  return <SuiviClient />;
+  return (
+    <Suspense>
+      <SuiviClient />
+    </Suspense>
+  );
 }

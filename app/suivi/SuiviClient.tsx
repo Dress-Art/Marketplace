@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Header from "@/components/models/Header";
 import SuiviSearchForm from "./components/SuiviSearchForm";
 import OrderDetailCard from "./components/OrderDetailCard";
@@ -11,6 +13,8 @@ import { ordersData } from "@/lib/constants/suivi-orders";
 import type { SuiviOrder } from "@/lib/types/suivi.types";
 
 export default function SuiviClient() {
+  const searchParams = useSearchParams();
+
   const {
     searchQuery,
     setSearchQuery,
@@ -22,6 +26,16 @@ export default function SuiviClient() {
     error,
     searchByOrderNumber,
   } = useOrderSearch();
+
+  // Auto-search if ?q= param is present (e.g. coming from payment success page)
+  useEffect(() => {
+    const q = searchParams.get("q");
+    if (q) {
+      setSearchQuery(q);
+      searchByOrderNumber(q, ordersData);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

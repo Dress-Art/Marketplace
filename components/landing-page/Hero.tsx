@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import ArrowLeftIcon from "@/components/icons/ArrowLeftIcon";
+import ArrowRightIcon from "@/components/icons/ArrowRightIcon";
 
 // Composant Avatar pour les avis
 const Avatar = ({ color, initial }: { color: string; initial: string }) => (
@@ -69,7 +70,7 @@ export default function Hero() {
               className="group flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-full font-semibold hover:bg-gray-800 transition-all hover:scale-105 shadow-lg"
             >
               <span>Découvrir</span>
-              <span className="group-hover:translate-x-1 transition-transform">→</span>
+              <ArrowRightIcon size={16} className="group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link
               href="/suivi"
