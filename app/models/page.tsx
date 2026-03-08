@@ -148,13 +148,13 @@ export default function ModelsPage() {
   return (
     <div className="min-h-screen relative">
       {/* Bouton retour */}
-      <div className="fixed top-14 left-4 z-[60]">
+      <div className="fixed top-14 pt-2 left-4 z-[60]">
         <button
           onClick={() => router.back()}
-          className="p-2 hover:bg-gray-100 rounded-full transition-colors cursor-pointer border border-gray-200 bg-white shadow-sm"
+          className="p-1 hover:bg-gray-100 rounded-full transition-colors cursor-pointer border border-gray-200 bg-white shadow-sm"
           aria-label="Retour"
         >
-          <ArrowLeftIcon size={24} className="text-gray-700" />
+          <ArrowLeftIcon size={20} className="text-gray-700" />
         </button>
       </div>
 
@@ -177,12 +177,6 @@ export default function ModelsPage() {
             types={types}
             designers={designers}
           />
-
-          {/* Compteur de résultats */}
-          <div className="text-sm text-gray-600 mb-2">
-            {filteredModels.length} modèle{filteredModels.length > 1 ? "s" : ""} trouvé
-            {filteredModels.length > 1 ? "s" : ""}
-          </div>
         </div>
 
         {/* Message si aucun résultat */}
