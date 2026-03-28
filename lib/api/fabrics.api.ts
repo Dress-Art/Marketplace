@@ -1,7 +1,7 @@
 // API Service for marketplace-fabrics-list endpoint
 // Uses Next.js API route proxy to avoid CORS issues
 
-import { FabricsListParams, FabricsListResponse } from '@/lib/types/fabrics.types';
+import { FabricsListParams, FabricsListResponse } from "@/lib/types/fabrics.types";
 
 /**
  * Fetches a paginated and filterable list of fabrics from the marketplace
@@ -9,30 +9,28 @@ import { FabricsListParams, FabricsListResponse } from '@/lib/types/fabrics.type
  * @param params - Query parameters for filtering and pagination
  * @returns Promise with fabrics data and pagination metadata
  */
-export async function fetchFabrics(
-    params: FabricsListParams = {}
-): Promise<FabricsListResponse> {
-    try {
-        // Call Next.js API route (server-side proxy)
-        const response = await fetch('/api/fabrics', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(params),
-        });
+export async function fetchFabrics(params: FabricsListParams = {}): Promise<FabricsListResponse> {
+  try {
+    // Call Next.js API route (server-side proxy)
+    const response = await fetch("/api/fabrics", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(params),
+    });
 
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({ error: 'Failed to fetch fabrics' }));
-            throw new Error(errorData.error || 'Failed to fetch fabrics');
-        }
-
-        const data = await response.json();
-        return data as FabricsListResponse;
-    } catch (error) {
-        console.error('Error fetching fabrics:', error);
-        throw error;
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: "Failed to fetch fabrics" }));
+      throw new Error(errorData.error || "Failed to fetch fabrics");
     }
+
+    const data = await response.json();
+    return data as FabricsListResponse;
+  } catch (error) {
+    console.error("Error fetching fabrics:", error);
+    throw error;
+  }
 }
 
 /**
@@ -40,7 +38,7 @@ export async function fetchFabrics(
  * @returns Promise with first page of fabrics
  */
 export async function fetchFabricsFirstPage(): Promise<FabricsListResponse> {
-    return fetchFabrics({ page: 1, per_page: 20 });
+  return fetchFabrics({ page: 1, per_page: 20 });
 }
 
 /**
@@ -49,7 +47,7 @@ export async function fetchFabricsFirstPage(): Promise<FabricsListResponse> {
  * @returns Promise with matching fabrics
  */
 export async function searchFabrics(query: string): Promise<FabricsListResponse> {
-    return fetchFabrics({ q: query, page: 1, per_page: 20 });
+  return fetchFabrics({ q: query, page: 1, per_page: 20 });
 }
 
 /**
@@ -58,7 +56,7 @@ export async function searchFabrics(query: string): Promise<FabricsListResponse>
  * @returns Promise with filtered fabrics
  */
 export async function fetchFabricsByColor(color: string): Promise<FabricsListResponse> {
-    return fetchFabrics({ color, page: 1, per_page: 20 });
+  return fetchFabrics({ color, page: 1, per_page: 20 });
 }
 
 /**
@@ -67,7 +65,7 @@ export async function fetchFabricsByColor(color: string): Promise<FabricsListRes
  * @returns Promise with filtered fabrics
  */
 export async function fetchFabricsByTexture(texture: string): Promise<FabricsListResponse> {
-    return fetchFabrics({ texture, page: 1, per_page: 20 });
+  return fetchFabrics({ texture, page: 1, per_page: 20 });
 }
 
 /**
@@ -75,5 +73,5 @@ export async function fetchFabricsByTexture(texture: string): Promise<FabricsLis
  * @returns Promise with in-stock fabrics
  */
 export async function fetchInStockFabrics(): Promise<FabricsListResponse> {
-    return fetchFabrics({ in_stock: true, page: 1, per_page: 20 });
+  return fetchFabrics({ in_stock: true, page: 1, per_page: 20 });
 }
