@@ -12,7 +12,7 @@ interface ModelCardProps {
     height: number;
 }
 
-export default function ModelCard({ id, image, titre, description, prix, width, height }: ModelCardProps) {
+export default function ModelCard({ image, titre, description, prix, width, height }: ModelCardProps) {
     return (
         <Link href={`/models/${slugify(titre)}/tissus`}>
             <div
