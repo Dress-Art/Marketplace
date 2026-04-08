@@ -181,12 +181,46 @@ export default function TissusClient({ id }: TissusClientProps) {
                             </div>
                         )}
 
-                        {/* Confirmation button - Fixed at bottom when fabric is selected */}
+                        {/* Barre de confirmation fixe en bas */}
                         {selectedTissuId && (
-                            <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 animate-slideUp">
+                            <div className="fixed bottom-0 left-0 right-0 z-50 lg:bottom-6 lg:left-1/2 lg:right-auto lg:transform lg:-translate-x-1/2 lg:w-auto">
+                                {/* Mobile : barre pleine largeur avec modèle + tissu */}
+                                <div className="lg:hidden bg-white border-t border-gray-200 shadow-2xl px-4 py-3">
+                                    <div className="flex items-center gap-3 mb-3">
+                                        <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0">
+                                            <Image
+                                                src={model.image_url || '/models/placeholder.svg'}
+                                                alt={model.nom}
+                                                fill
+                                                className="object-cover"
+                                            />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-xs text-gray-500 truncate">Modèle sélectionné</p>
+                                            <p className="font-bold text-gray-900 truncate">{model.nom}</p>
+                                        </div>
+                                        <div className="text-right shrink-0">
+                                            <p className="text-xs text-gray-500">Tissu</p>
+                                            <p className="font-semibold text-gray-900 text-sm truncate max-w-[100px]">
+                                                {fabrics.find(f => f.id === selectedTissuId)?.nom}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={handleConfirm}
+                                        className="w-full bg-gray-900 hover:bg-gray-800 text-white font-bold py-3 rounded-2xl transition-all flex items-center justify-center gap-2"
+                                    >
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        Continuer
+                                    </button>
+                                </div>
+
+                                {/* Desktop : bouton pill centré */}
                                 <button
                                     onClick={handleConfirm}
-                                    className="bg-gray-900 hover:bg-gray-800 text-white font-bold py-4 px-8 rounded-full shadow-2xl transition-all duration-300 hover:scale-105 flex items-center gap-3"
+                                    className="hidden lg:flex bg-gray-900 hover:bg-gray-800 text-white font-bold py-4 px-8 rounded-full shadow-2xl transition-all duration-300 hover:scale-105 items-center gap-3"
                                 >
                                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -197,7 +231,7 @@ export default function TissusClient({ id }: TissusClientProps) {
                         )}
 
                         {!loading && !error && (
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            <div className={`grid grid-cols-2 md:grid-cols-3 gap-4 ${selectedTissuId ? 'pb-36 lg:pb-0' : ''}`}>
                                 {tissusData.map((tissu) => (
                                     <TissuCard
                                         key={tissu.id}
