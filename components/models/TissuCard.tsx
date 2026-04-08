@@ -1,4 +1,7 @@
+'use client';
+
 import Image from 'next/image';
+import { useState } from 'react';
 
 // Type flexible pour accepter les tissus de l'API ou les données locales
 interface TissuData {
@@ -25,6 +28,8 @@ interface TissuCardProps {
 }
 
 export default function TissuCard({ tissu, isSelected = false, onSelect }: TissuCardProps) {
+    const [imgSrc, setImgSrc] = useState(tissu.image || tissu.image_url || '/models/placeholder.svg');
+
     const handleClick = () => {
         if (onSelect) {
             onSelect(tissu.id);
@@ -32,7 +37,7 @@ export default function TissuCard({ tissu, isSelected = false, onSelect }: Tissu
     };
 
     // Support both local data format and API format
-    const imageUrl = tissu.image || tissu.image_url || '';
+    const imageUrl = imgSrc;
     const title = tissu.titre || tissu.nom || '';
     const price = tissu.prix || tissu.prix_metre || 0;
     const color = tissu.couleur || '';
@@ -66,6 +71,7 @@ export default function TissuCard({ tissu, isSelected = false, onSelect }: Tissu
                     height={imgHeight}
                     className="w-full h-auto object-cover rounded-2xl relative"
                     loading="lazy"
+                    onError={() => setImgSrc('/models/placeholder.svg')}
                 />
             </div>
 
