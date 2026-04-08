@@ -275,6 +275,7 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
                                 {ownFabricPreview ? (
                                     <div className="space-y-4">
                                         <div className="relative w-full rounded-2xl overflow-hidden">
+                                            {/* eslint-disable-next-line @next/next/no-img-element */}
                                             <img src={ownFabricPreview} alt="Votre tissu" className="w-full h-auto object-cover rounded-2xl" />
                                             {ownFabricUploading && (
                                                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-2xl">
