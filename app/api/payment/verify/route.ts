@@ -97,7 +97,7 @@ export async function GET(request: NextRequest) {
     const phone = pendingPayment.customerInfo.phone;
     const phoneE164 = phone.startsWith('+') ? phone : `+229${phone}`;
     const { data: existingUsers } = await supabase.auth.admin.listUsers();
-    const alreadyExists = existingUsers?.users?.some((u: { phone: string }) => u.phone === phoneE164);
+    const alreadyExists = existingUsers?.users?.some((u) => u.phone === phoneE164);
     if (!alreadyExists) {
       const { error: createUserError } = await supabase.auth.admin.createUser({
         phone: phoneE164,
