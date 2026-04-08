@@ -15,7 +15,7 @@ export default function ModelsSection() {
   // Convert API models to UI format
   const displayModels = useMemo(() => {
     const converted = models.slice(0, 5).map((model) => ({
-      id: parseInt(model.id.substring(0, 8), 16),
+      id: model.id,
       image: model.image_url || "/models/placeholder.svg",
       titre: model.nom,
       description: model.description,
