@@ -1,7 +1,5 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 const FROM = process.env.RESEND_FROM || 'DressArt <contact@dressart.studio>';
 
 const STATUS_LABELS: Record<string, string> = {
@@ -82,6 +80,7 @@ export async function sendOrderStatusEmail({
         </div>
     `;
 
+    const resend = new Resend(process.env.RESEND_API_KEY);
     const { error } = await resend.emails.send({
         from: FROM,
         to,
