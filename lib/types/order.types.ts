@@ -3,8 +3,8 @@ export interface CreateOrderData {
     orderNumber: string;
     customerName: string;
     customerPhone: string;
-    modelId: number;
-    fabricId: number | null;
+    modelId: string;
+    fabricId: string | null;
     measurements?: {
         taille: string;
         tourPoitrine: string;
@@ -29,8 +29,8 @@ export interface Order {
     orderNumber: string;
     customerName: string;
     customerPhone: string;
-    modelId: number;
-    fabricId: number | null;
+    modelId: string;
+    fabricId: string | null;
     measurements?: Record<string, string>;
     appointmentDate?: string;
     location: string;

@@ -9,6 +9,7 @@ export default function PaymentGuard() {
   const [loading, setLoading] = useState(true)
   const [approved, setApproved] = useState<boolean | null>(null)
   const [status, setStatus] = useState<string | null>(null)
+  const [orderNumber, setOrderNumber] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -48,7 +49,11 @@ export default function PaymentGuard() {
           setApproved(!!data.approved)
           setStatus(data.status || null)
           if (data.approved) {
+            setOrderNumber(data.orderNumber || null)
             try { localStorage.removeItem('pendingPayment') } catch {}
+            if (data.orderNumber) {
+              try { sessionStorage.setItem('lastOrderNumber', data.orderNumber) } catch {}
+            }
           }
         }
       } catch {

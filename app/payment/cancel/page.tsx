@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import Header from '@/components/models/Header';
 
 export const metadata = {
     title: 'Paiement Annulé | DressArt',
@@ -9,8 +8,6 @@ export const metadata = {
 export default function PaymentCancelPage() {
     return (
         <div className="min-h-screen bg-gray-50">
-            <Header />
-
             <main className="min-h-screen pt-24 pb-12 px-4">
                 <div className="max-w-md mx-auto">
                     <div className="bg-white rounded-3xl p-8 shadow-lg text-center">

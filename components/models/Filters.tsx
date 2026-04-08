@@ -39,7 +39,7 @@ export default function Filters({
     return (
         <div className="w-full mb-8">
             {/* Premium Filter Container */}
-            <div className="flex flex-wrap items-center gap-6 py-6 border-y border-gray-100">
+            <div className="flex flex-wrap items-center gap-6 py-2 border-y border-gray-100">
                 {/* Filter Label - Hidden on small mobile to save space */}
                 <div className="hidden sm:flex items-center gap-2">
                     <span className="text-xs uppercase tracking-[0.2em] font-bold text-gray-400">

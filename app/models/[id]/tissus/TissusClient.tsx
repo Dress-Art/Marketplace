@@ -2,12 +2,12 @@
 
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import Header from '@/components/models/Header';
 import Image from 'next/image';
 import Link from 'next/link';
 import ArrowLeftIcon from '@/components/icons/ArrowLeftIcon';
 import { useModels } from '@/lib/hooks/useModels';
 import { useFabrics } from '@/lib/hooks/useFabrics';
+import { slugify } from '@/lib/utils/slugify';
 import TissuCard from '@/components/models/TissuCard';
 import FabricIcon from '@/components/icons/FabricIcon';
 
@@ -17,23 +17,16 @@ interface TissusClientProps {
 
 export default function TissusClient({ id }: TissusClientProps) {
     const router = useRouter();
-    const [selectedTissuId, setSelectedTissuId] = useState<number | null>(null);
+    const [selectedTissuId, setSelectedTissuId] = useState<string | null>(null);
+    const [selectedTissuSlug, setSelectedTissuSlug] = useState<string | null>(null);
 
     // Fetch models from API
     const { models, loading: modelsLoading } = useModels({
         page: 1,
-        per_page: 100, // Get all models to find the one we need
+        per_page: 100,
     });
 
-    // Find the model by converting the ID string to match the API format
-    const model = useMemo(() => {
-        const targetId = parseInt(id);
-        return models.find(m => {
-            // Convert UUID to number for comparison
-            const modelNumericId = parseInt(m.id.substring(0, 8), 16);
-            return modelNumericId === targetId;
-        });
-    }, [models, id]);
+    const model = useMemo(() => models.find(m => slugify(m.nom) === id), [models, id]);
 
     // Fetch fabrics from API
     const { fabrics, loading: fabricsLoading, error } = useFabrics({
@@ -43,14 +36,20 @@ export default function TissusClient({ id }: TissusClientProps) {
 
     const loading = modelsLoading || fabricsLoading;
 
-    const handleSelectTissu = (tissuId: number) => {
-        // Toggle selection - if clicking the same fabric, deselect it
-        setSelectedTissuId(prevId => prevId === tissuId ? null : tissuId);
+    const handleSelectTissu = (tissuId: string) => {
+        if (selectedTissuId === tissuId) {
+            setSelectedTissuId(null);
+            setSelectedTissuSlug(null);
+        } else {
+            const fabric = fabrics.find(f => f.id === tissuId);
+            setSelectedTissuId(tissuId);
+            setSelectedTissuSlug(fabric ? slugify(fabric.nom) : tissuId);
+        }
     };
 
     const handleConfirm = () => {
-        if (selectedTissuId) {
-            router.push(`/models/${id}/tissus/${selectedTissuId}/mesure`);
+        if (selectedTissuSlug) {
+            router.push(`/models/${id}/tissus/${selectedTissuSlug}/mesure`);
         }
     };
 
@@ -79,14 +78,12 @@ export default function TissusClient({ id }: TissusClientProps) {
         );
     }
 
-    // Convert API Fabric to Tissu format for TissuCard component
     const tissusData = fabrics.map(fabric => ({
-        id: parseInt(fabric.id.substring(0, 8), 16) || 0, // Convert UUID to number for ID
+        id: fabric.id,
         nom: fabric.nom,
         texture: fabric.texture || '',
         prix: fabric.prix_metre,
-        // Use placeholder until real images are added to /public/images/tissus/
-        image: '/models/placeholder.svg',
+        image: fabric.image_url || '/models/placeholder.svg',
         width: 400,
         height: 300,
     }));
@@ -104,16 +101,11 @@ export default function TissusClient({ id }: TissusClientProps) {
                 </button>
             </div>
 
-            {/* Header fixe */}
-            <div className="fixed top-0 left-0 right-0 z-50">
-                <Header />
-            </div>
-
             {/* Main content */}
             <main className="min-h-screen pt-20">
-                <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 p-4">
-                    {/* Colonne modèle (1 colonne) */}
-                    <div className="col-span-1 lg:col-span-1">
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 p-4 lg:p-8">
+                    {/* Colonne modèle */}
+                    <div className="col-span-1 lg:col-span-2">
                         <div className="lg:sticky lg:top-20 p-4 border border-gray-300 rounded-3xl">
                             <div className="relative w-full rounded-2xl overflow-hidden">
                                 <Image
@@ -126,14 +118,17 @@ export default function TissusClient({ id }: TissusClientProps) {
                             </div>
                             <div className="mt-4">
                                 <h1 className="text-3xl font-bold mb-2">{model.nom}</h1>
-                                <p className="text-gray-600">{model.description}</p>
-                                <p className="text-xl font-bold mt-2">{model.prix_base} FCFA</p>
+                                <p className="text-gray-600 mb-4">{model.description}</p>
+                                <div className="flex items-center gap-2 bg-gray-900 text-white rounded-2xl px-5 py-3 w-fit">
+                                    <span className="text-sm font-medium opacity-70">À partir de</span>
+                                    <span className="text-xl font-bold">{model.prix_base.toLocaleString('fr-FR')} FCFA</span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* Colonnes tissus (Responsive) */}
-                    <div className="col-span-1 lg:col-span-4">
+                    {/* Colonnes tissus */}
+                    <div className="col-span-1 lg:col-span-3">
                         <h2 className="text-2xl font-bold mb-6">Choisissez votre tissu</h2>
 
                         {/* Option "J'ai mon propre tissu" */}
@@ -201,65 +196,16 @@ export default function TissusClient({ id }: TissusClientProps) {
                             </div>
                         )}
 
-                        {/* Vue XL (4 colonnes) */}
                         {!loading && !error && (
-                            <div className="hidden xl:flex gap-4 items-start">
-                                {Array.from({ length: 4 }).map((_, colIndex) => (
-                                    <div key={colIndex} className="flex-1 flex flex-col gap-4">
-                                        {tissusData
-                                            .filter((_, index) => index % 4 === colIndex)
-                                            .map((tissu) => (
-                                                <TissuCard
-                                                    key={tissu.id}
-                                                    tissu={tissu}
-                                                    modelId={id}
-                                                    isSelected={selectedTissuId === tissu.id}
-                                                    onSelect={handleSelectTissu}
-                                                />
-                                            ))}
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-
-                        {/* Vue LG (3 colonnes) */}
-                        {!loading && !error && (
-                            <div className="hidden lg:flex xl:hidden gap-4 items-start">
-                                {Array.from({ length: 3 }).map((_, colIndex) => (
-                                    <div key={colIndex} className="flex-1 flex flex-col gap-4">
-                                        {tissusData
-                                            .filter((_, index) => index % 3 === colIndex)
-                                            .map((tissu) => (
-                                                <TissuCard
-                                                    key={tissu.id}
-                                                    tissu={tissu}
-                                                    modelId={id}
-                                                    isSelected={selectedTissuId === tissu.id}
-                                                    onSelect={handleSelectTissu}
-                                                />
-                                            ))}
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-
-                        {/* Vue MD (2 colonnes) */}
-                        {!loading && !error && (
-                            <div className="flex lg:hidden gap-4 items-start">
-                                {Array.from({ length: 2 }).map((_, colIndex) => (
-                                    <div key={colIndex} className="flex-1 flex flex-col gap-4">
-                                        {tissusData
-                                            .filter((_, index) => index % 2 === colIndex)
-                                            .map((tissu) => (
-                                                <TissuCard
-                                                    key={tissu.id}
-                                                    tissu={tissu}
-                                                    modelId={id}
-                                                    isSelected={selectedTissuId === tissu.id}
-                                                    onSelect={handleSelectTissu}
-                                                />
-                                            ))}
-                                    </div>
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                {tissusData.map((tissu) => (
+                                    <TissuCard
+                                        key={tissu.id}
+                                        tissu={tissu}
+                                        modelId={id}
+                                        isSelected={selectedTissuId === tissu.id}
+                                        onSelect={handleSelectTissu}
+                                    />
                                 ))}
                             </div>
                         )}

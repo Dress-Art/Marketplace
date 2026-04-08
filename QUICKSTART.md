@@ -40,6 +40,7 @@ cp env.example .env.local
 2. Run these migrations in order:
    - Copy/paste content from `migrations/001_pending_payments.sql` → Run
    - Copy/paste content from `migrations/002_add_transaction_id_to_orders.sql` → Run
+   - Copy/paste content from `migrations/003_unique_transaction_id_orders.sql` → Run
 
 ### 4. Verify Configuration
 

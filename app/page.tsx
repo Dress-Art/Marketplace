@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Header from '@/components/landing-page/Header';
 import Hero from '@/components/landing-page/Hero';
 import ModelsSection from '@/components/landing-page/ModelsSection';
 import FeaturesSection from '@/components/landing-page/FeaturesSection';
@@ -52,10 +51,7 @@ export default function Home() {
         dangerouslySetInnerHTML={renderJsonLd(websiteSchema)}
       />
 
-      <div className="fixed top-0 left-0 right-0 z-50">
-        <Header />
-      </div>
-      <main>
+      <main className="pt-20">
         <FadeIn>
           <Hero />
         </FadeIn>

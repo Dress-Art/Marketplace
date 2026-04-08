@@ -2,7 +2,7 @@ import Image from 'next/image';
 
 // Type flexible pour accepter les tissus de l'API ou les données locales
 interface TissuData {
-    id: number;
+    id: string;
     nom?: string;
     titre?: string;
     texture?: string | null;
@@ -21,7 +21,7 @@ interface TissuCardProps {
     tissu: TissuData;
     modelId: string;
     isSelected?: boolean;
-    onSelect?: (id: number) => void;
+    onSelect?: (id: string) => void;
 }
 
 export default function TissuCard({ tissu, isSelected = false, onSelect }: TissuCardProps) {

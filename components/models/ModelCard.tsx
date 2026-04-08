@@ -1,8 +1,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { slugify } from '@/lib/utils/slugify';
 
 interface ModelCardProps {
-    id: number;
+    id: string;
     image: string;
     titre: string;
     description: string;
@@ -13,7 +14,7 @@ interface ModelCardProps {
 
 export default function ModelCard({ id, image, titre, description, prix, width, height }: ModelCardProps) {
     return (
-        <Link href={`/models/${id}/tissus`}>
+        <Link href={`/models/${slugify(titre)}/tissus`}>
             <div
                 className="group relative overflow-hidden rounded-2xl cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl"
                 style={{

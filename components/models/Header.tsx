@@ -4,10 +4,12 @@ import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import SearchIcon from '@/components/icons/SearchIcon';
-import ShoppingCartIcon from '@/components/icons/ShoppingCartIcon';
+import UserIcon from '@/components/icons/UserIcon';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 export default function Header() {
     const pathname = usePathname();
+    const { user } = useAuth();
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -86,13 +88,14 @@ export default function Header() {
                         )}
                     </div>
 
-                    {/* Icône panier */}
-                    <button
-                        className="p-2 hover:bg-gray-100 rounded-full transition-all cursor-pointer"
-                        aria-label="Panier"
+                    {/* Profil / Connexion */}
+                    <Link
+                        href={user ? '/profile' : '/auth/login'}
+                        className="p-2 hover:bg-gray-100 rounded-full transition-all"
+                        aria-label={user ? 'Mon profil' : 'Se connecter'}
                     >
-                        <ShoppingCartIcon className="w-6 h-6 text-gray-700" />
-                    </button>
+                        <UserIcon className="w-6 h-6 text-gray-700" />
+                    </Link>
 
                     {/* Hamburger Menu Button (Mobile) */}
                     <button
@@ -132,6 +135,13 @@ export default function Header() {
                         onClick={() => setIsMobileMenuOpen(false)}
                     >
                         Suivi
+                    </Link>
+                    <Link
+                        href={user ? '/profile' : '/auth/login'}
+                        className={`font-medium transition-colors ${pathname.startsWith('/profile') || pathname.startsWith('/auth') ? 'text-gray-900 underline underline-offset-4' : 'text-gray-900 hover:text-gray-600'}`}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                        {user ? 'Mon profil' : 'Connexion'}
                     </Link>
                 </div>
             </div>

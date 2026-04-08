@@ -13,18 +13,18 @@ const Avatar = ({ color, initial }: { color: string, initial: string }) => (
 
 export default function Hero() {
     return (
-        <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-white pt-20">
+        <section className="relative h-screen flex items-center justify-center overflow-hidden bg-white">
 
             <div className="container mx-auto px-4 h-full relative flex flex-col justify-center items-center">
 
                 {/* Unified Title - Behind Image, Higher up and Smaller */}
-                <h1 className="absolute flex max-sm:flex-col justify-between max-w-6xl px-4 z-0 max-sm:top-[10%] top-[20%] text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter text-gray-900 font-playfair whitespace-nowrap text-center w-full">
+                <h1 className="absolute flex max-sm:flex-col justify-between max-w-6xl px-4 z-0 max-sm:top-[8%] top-[10%] text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter text-gray-900 font-playfair whitespace-nowrap text-center w-full">
                     <span>Créez Votre</span>
                     <span>Style Unique</span>
                 </h1>
 
                 {/* Center Image - On Top */}
-                <div className="relative z-10 w-[400px] h-[600px] md:w-[500px] md:h-[800px] shrink-0 max-sm:mt-40 max-md:mt-60 mt-20">
+                <div className="relative z-10 w-[400px] h-[600px] md:w-[500px] md:h-[700px] shrink-0 max-sm:mt-10 max-md:mt-12 -mt-4">
                     <Image
                         src="/landing-page/modele.png"
                         alt="Modèle DressArt"
@@ -63,19 +63,19 @@ export default function Hero() {
                     </div>
 
                     {/* Action Buttons (Below Reviews) */}
-                    <div className="flex flex-col gap-4 items-end">
+                    <div className="flex gap-4 items-end">
                         <Link
                             href="/models"
                             className="group flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-full font-semibold hover:bg-gray-800 transition-all hover:scale-105 shadow-lg"
                         >
                             <span>Découvrir</span>
-                            <span className="group-hover:translate-x-1 transition-transform">→</span>
+                            {/* <span className="group-hover:translate-x-1 transition-transform">→</span> */}
                         </Link>
                         <Link
                             href="/suivi"
                             className="px-6 py-3 bg-white text-gray-900 border border-gray-200 rounded-full font-semibold hover:border-gray-900 transition-all hover:scale-105"
                         >
-                            Suivre
+                            Suivre une commande
                         </Link>
                     </div>
                 </div>

@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import SearchIcon from '@/components/icons/SearchIcon';
-import ShoppingCartIcon from '@/components/icons/ShoppingCartIcon';
 import UserIcon from '@/components/icons/UserIcon';
 
 export default function Header() {
@@ -40,9 +39,6 @@ export default function Header() {
                     </Link>
                     <Link href="/suivi" className={`font-medium transition-colors ${pathname.startsWith('/suivi') ? 'text-gray-900 underline underline-offset-4' : 'text-gray-600 hover:text-gray-900'}`}>
                         Suivi
-                    </Link>
-                    <Link href="/profile" className={`font-medium transition-colors ${pathname.startsWith('/profile') ? 'text-gray-900 underline underline-offset-4' : 'text-gray-600 hover:text-gray-900'}`}>
-                        Profil
                     </Link>
                 </nav>
 
@@ -87,14 +83,6 @@ export default function Header() {
                             </form>
                         )}
                     </div>
-
-                    {/* Icône panier */}
-                    <button
-                        className="p-2 hover:bg-gray-100 rounded-full transition-all cursor-pointer"
-                        aria-label="Panier"
-                    >
-                        <ShoppingCartIcon className="w-6 h-6 text-gray-700" />
-                    </button>
 
                     {/* Icône profil */}
                     <Link

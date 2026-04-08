@@ -8,8 +8,8 @@ export interface CreatePaymentSessionParams {
         email?: string;
     };
     orderDetails: {
-        modelId: number;
-        fabricId: number | null;
+        modelId: string;
+        fabricId: string | null;
         measurements?: {
             taille: string;
             tourPoitrine: string;
@@ -19,7 +19,7 @@ export interface CreatePaymentSessionParams {
             longueurBras: string;
         };
         appointmentDate?: Date;
-        location: 'cotonou' | 'outside';
+        location?: 'cotonou' | 'calavi';
         specificLocation?: string;
     };
 }
@@ -58,14 +58,15 @@ export interface PendingPayment {
         phone: string;
     };
     orderDetails: {
-        modelId: number;
-        fabricId: number | null;
+        modelId: string;
+        fabricId: string | null;
         measurements?: Record<string, string>;
         appointmentDate?: string;
-        location: string;
+        location: 'cotonou' | 'calavi';
         specificLocation?: string;
     };
     paymentType: 'full' | 'partial';
-    amount: number;
+    amountToPay: number;
+    totalAmount: number;
     createdAt: string;
 }
