@@ -141,7 +141,7 @@ export default function ModelsPage() {
             {/* Main content - Masonry Layout Responsif */}
             <main className="min-h-screen pt-20">
                 {/* Filtres */}
-                <div className="px-6 md:px-10 mb-">
+                <div className="px-6 md:px-10 ">
                     <Filters
                         selectedType={selectedType}
                         selectedDesigner=""
