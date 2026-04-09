@@ -70,7 +70,7 @@ export default function LoginClient() {
                     <>
                         <h1 className="text-3xl font-bold text-gray-900 mb-2">Connexion</h1>
                         <p className="text-gray-600 mb-8">
-                            Entrez votre numéro WhatsApp — vous recevrez un code de confirmation.
+                            Entrez votre numéro WhatsApp, vous recevrez un code de confirmation.
                         </p>
 
                         <form onSubmit={handleSendOtp} className="space-y-4">
