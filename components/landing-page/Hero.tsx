@@ -3,6 +3,14 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import ArrowLeftIcon from '@/components/icons/ArrowLeftIcon';
+import { useState, useEffect } from 'react';
+
+const HERO_IMAGES = [
+    '/landing-page/model_victor.png',
+    '/landing-page/cottonbro.png',
+    '/landing-page/khalifa.png',
+    '/landing-page/unique.png',
+];
 
 // Composant Avatar pour les avis
 const Avatar = ({ color, initial }: { color: string, initial: string }) => (
@@ -12,6 +20,20 @@ const Avatar = ({ color, initial }: { color: string, initial: string }) => (
 );
 
 export default function Hero() {
+    const [current, setCurrent] = useState(0);
+    const [visible, setVisible] = useState(true);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setVisible(false);
+            setTimeout(() => {
+                setCurrent(prev => (prev + 1) % HERO_IMAGES.length);
+                setVisible(true);
+            }, 600);
+        }, 4000);
+        return () => clearInterval(interval);
+    }, []);
+
     return (
         <section className="relative h-screen flex items-center justify-center overflow-hidden bg-white">
 
@@ -19,17 +41,19 @@ export default function Hero() {
 
                 {/* Unified Title - Behind Image, Higher up and Smaller */}
                 <h1 className="absolute flex max-sm:flex-col justify-between max-w-6xl px-4 z-0 max-sm:top-[8%] top-[10%] text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter text-gray-900 font-playfair whitespace-nowrap text-center w-full">
-                    <span>Créez Votre</span>
-                    <span>Style Unique</span>
+                    <span>Créez votre</span>
+                    <span>Style unique</span>
                 </h1>
 
-                {/* Center Image - On Top */}
-                <div className="relative z-10 w-[400px] h-[600px] md:w-[500px] md:h-[700px] shrink-0 max-sm:mt-10 max-md:mt-12 -mt-4">
+                {/* Center Image - Slideshow fade */}
+                <div className="relative z-10 w-[400px] h-[600px] md:w-[500px] md:h-[700px] shrink-0 max-sm:mt-10 max-md:mt-12 -mt-4"
+                    style={{ transition: 'opacity 0.6s ease-in-out', opacity: visible ? 1 : 0 }}
+                >
                     <Image
-                        src="/landing-page/modele.png"
+                        src={HERO_IMAGES[current]}
                         alt="Modèle DressArt"
                         fill
-                        className="object-contain drop-shadow-2xl scale-x-[-1]"
+                        className="object-contain drop-shadow-2xl"
                         priority
                     />
                 </div>
