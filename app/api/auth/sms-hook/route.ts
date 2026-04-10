@@ -76,14 +76,18 @@ export async function POST(request: NextRequest) {
     try {
         body = JSON.parse(rawBody);
     } catch {
+        console.error('SMS hook: invalid JSON', rawBody.slice(0, 200));
         return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
+
+    console.log('SMS hook body:', JSON.stringify(body).slice(0, 300));
 
     // Supabase envoie : { user: { phone }, otp, type }
     const phone: string = (body?.user as Record<string, unknown>)?.phone as string ?? body?.phone as string ?? '';
     const otp: string = body?.otp as string ?? '';
 
     if (!phone || !otp) {
+        console.error('SMS hook: missing phone or otp', { phone, otp: otp ? '***' : '' });
         return NextResponse.json({ error: 'Missing phone or otp' }, { status: 400 });
     }
 
