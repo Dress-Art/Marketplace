@@ -27,6 +27,7 @@ export interface CreatePaymentSessionParams {
 export interface PaymentSessionResponse {
     sessionId: string;
     paymentUrl: string;
+    paymentToken: string;
     amount: number;
 }
 

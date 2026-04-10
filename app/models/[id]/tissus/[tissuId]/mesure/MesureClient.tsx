@@ -1,8 +1,9 @@
 'use client';
 
-import { useMemo, useState, useRef } from 'react';
+import { useMemo, useState, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useModels } from '@/lib/hooks/useModels';
 import { useFabrics } from '@/lib/hooks/useFabrics';
 import { slugify } from '@/lib/utils/slugify';
@@ -12,12 +13,27 @@ import CalendarIcon from '@/components/icons/CalendarIcon';
 import ArrowLeftIcon from '@/components/icons/ArrowLeftIcon';
 import InfoIcon from '@/components/icons/InfoIcon';
 
+declare global {
+    interface Window {
+        FedaPay?: {
+            init: (options: {
+                public_key: string;
+                transaction: { token: string };
+                currency: { iso: string };
+                onComplete: (resp: { reason: string; transaction: { id: number; reference: string; status: string } }) => void;
+                onClose: () => void;
+            }) => void;
+        };
+    }
+}
+
 interface MesureClientProps {
     id: string;
     tissuId: string;
 }
 
 export default function MesureClient({ id, tissuId }: MesureClientProps) {
+    const router = useRouter();
     const isOwnFabric = tissuId === 'own';
 
     const { models, loading: modelsLoading } = useModels({ page: 1, per_page: 100 });
@@ -111,7 +127,7 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
         if (selectedDate) setShowPaymentModal(true);
     };
 
-    const handlePaymentConfirm = async () => {
+    const handlePaymentConfirm = useCallback(async () => {
         if (!isNameValid || !isPhoneValid || !userName || !userPhone) {
             alert('Veuillez remplir tous les champs');
             return;
@@ -135,17 +151,39 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
                 }),
             });
             const data = await response.json();
-            if (data.success && data.paymentUrl) {
-                window.location.href = data.paymentUrl;
-            } else {
+            if (!data.success || !data.paymentToken) {
                 throw new Error(data.error || 'Failed to create payment session');
             }
+
+            // Store session for verification
+            localStorage.setItem('pendingPayment', JSON.stringify({ sessionId: data.sessionId }));
+
+            if (!window.FedaPay) {
+                // Fallback: redirect if script not loaded
+                window.location.href = data.paymentUrl;
+                return;
+            }
+
+            setShowPaymentModal(false);
+
+            window.FedaPay.init({
+                public_key: process.env.NEXT_PUBLIC_FEDAPAY_PUBLIC_KEY || '',
+                transaction: { token: data.paymentToken },
+                currency: { iso: 'XOF' },
+                onComplete: (resp) => {
+                    const txId = resp.transaction?.id || data.sessionId;
+                    router.push(`/payment/success?transactionId=${txId}`);
+                },
+                onClose: () => {
+                    setIsProcessing(false);
+                },
+            });
         } catch (error) {
             console.error('Payment error:', error);
             alert('Erreur lors de la creation du paiement. Veuillez reessayer.');
             setIsProcessing(false);
         }
-    };
+    }, [isNameValid, isPhoneValid, userName, userPhone, finalAmount, paymentType, phoneClean, model, isOwnFabric, tissu, ownFabricUrl, selectedDate, location, router]);
 
     // ── Shared: panneau "Finaliser la commande" ──────────────────────────────
     const OrderPanel = () => (

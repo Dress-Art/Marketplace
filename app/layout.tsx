@@ -85,6 +85,7 @@ export default function RootLayout({
         {children}
         <Analytics />
         <SpeedInsights />
+        <script src="https://cdn.fedapay.com/checkout.js?v=1.1.7" />
         <script
           dangerouslySetInnerHTML={{
             __html: `

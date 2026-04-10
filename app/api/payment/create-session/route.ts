@@ -125,6 +125,7 @@ export async function POST(request: NextRequest) {
             success: true,
             sessionId: session.sessionId,
             paymentUrl: session.paymentUrl,
+            paymentToken: session.paymentToken,
             amount: session.amount,
         });
 
