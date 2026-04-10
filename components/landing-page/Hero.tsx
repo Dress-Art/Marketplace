@@ -46,7 +46,7 @@ export default function Hero() {
                 </h1>
 
                 {/* Center Image - Slideshow fade */}
-                <div className="relative z-10 w-[400px] h-[600px] md:w-[500px] md:h-[700px] shrink-0 max-sm:mt-10 max-md:mt-12 -mt-4"
+                <div className="relative z-10 w-[400px] h-[600px] md:w-[500px] md:h-[700px] shrink-0 max-sm:-mt-4 max-md:-mt-4 -mt-16"
                     style={{ transition: 'opacity 0.6s ease-in-out', opacity: visible ? 1 : 0 }}
                 >
                     <Image

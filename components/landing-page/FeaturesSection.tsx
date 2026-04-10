@@ -9,13 +9,13 @@ export default function FeaturesSection() {
     {
       title: "Commande Rapide",
       description:
-        "Parcours optimisé en 4 étapes : modèle, tissu, mesures, paiement. Finalisez votre commande en moins de 5 minutes.",
+        "Parcours optimisé en 4 étapes : \nmodèle, tissu, mesures, paiement. \nFinalisez votre commande en moins de 5 minutes.",
       icon: <SpeedIcon size={48} className="text-gray-900" />,
     },
     {
       title: "Paiement Flexible",
       description:
-        "Payez en plusieurs fois (30%, 50%, 75% ou 100%) via Mobile Money. Sécurisé par FedaPay.",
+        "Payez en plusieurs fois (30% ou 100%) via Mobile Money. Sécurisé par FedaPay.",
       icon: <PaymentIcon size={48} className="text-gray-900" />,
     },
     {
