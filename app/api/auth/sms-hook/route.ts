@@ -80,11 +80,13 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
 
-    console.log('SMS hook body:', JSON.stringify(body).slice(0, 300));
+    console.log('SMS hook body keys:', Object.keys(body), 'full:', JSON.stringify(body).slice(0, 500));
 
-    // Supabase envoie : { user: { phone }, otp, type }
-    const phone: string = (body?.user as Record<string, unknown>)?.phone as string ?? body?.phone as string ?? '';
-    const otp: string = body?.otp as string ?? '';
+    // Supabase HTTPS hook payload: { user: { phone }, sms?: { otp }, otp? }
+    const user = body?.user as Record<string, unknown> | undefined;
+    const sms = body?.sms as Record<string, unknown> | undefined;
+    const phone: string = user?.phone as string ?? body?.phone as string ?? '';
+    const otp: string = sms?.otp as string ?? body?.otp as string ?? '';
 
     if (!phone || !otp) {
         console.error('SMS hook: missing phone or otp', { phone, otp: otp ? '***' : '' });
