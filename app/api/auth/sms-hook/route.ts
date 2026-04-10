@@ -54,7 +54,20 @@ export async function POST(request: NextRequest) {
         const webhookId = request.headers.get('webhook-id') ?? '';
         const webhookTimestamp = request.headers.get('webhook-timestamp') ?? '';
         if (!sig || !verifySupabaseSignature(rawBody, sig, secret, webhookId, webhookTimestamp)) {
-            console.error('SMS hook: invalid signature');
+            // Debug: compute expected to compare
+            const ci = secret.indexOf(',');
+            const kb = secret.slice(ci + 1).slice('whsec_'.length);
+            const k = Buffer.from(kb, 'base64');
+            const sc = `${webhookId}.${webhookTimestamp}.${rawBody}`;
+            const comp = crypto.createHmac('sha256', k).update(sc).digest('base64');
+            console.error('SMS hook mismatch', {
+                received: sig.slice(sig.indexOf(',') + 1),
+                computed: comp,
+                webhookId,
+                webhookTimestamp,
+                keyLen: k.length,
+                bodyLen: rawBody.length,
+            });
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
     }
