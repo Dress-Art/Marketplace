@@ -8,7 +8,13 @@ import crypto from 'crypto';
  * Supabase envoie header webhook-signature: v1,{hmac_sha256_base64}
  */
 
-function verifySupabaseSignature(rawBody: string, signature: string, secret: string): boolean {
+function verifySupabaseSignature(
+    rawBody: string,
+    signature: string,
+    secret: string,
+    webhookId: string,
+    webhookTimestamp: string,
+): boolean {
     try {
         // secret format: "v1,whsec_{base64Key}"
         const commaIdx = secret.indexOf(',');
@@ -20,6 +26,9 @@ function verifySupabaseSignature(rawBody: string, signature: string, secret: str
         const keyBase64 = whsec.slice('whsec_'.length);
         const key = Buffer.from(keyBase64, 'base64');
 
+        // Standard Webhooks: sign "{webhook-id}.{webhook-timestamp}.{body}"
+        const signedContent = `${webhookId}.${webhookTimestamp}.${rawBody}`;
+
         // Supabase sends: v1,{base64_hmac}
         const sigCommaIdx = signature.indexOf(',');
         if (sigCommaIdx === -1) return false;
@@ -27,7 +36,7 @@ function verifySupabaseSignature(rawBody: string, signature: string, secret: str
         const sigValue = signature.slice(sigCommaIdx + 1);
         if (sigVersion !== 'v1') return false;
 
-        const computed = crypto.createHmac('sha256', key).update(rawBody).digest('base64');
+        const computed = crypto.createHmac('sha256', key).update(signedContent).digest('base64');
 
         if (sigValue.length !== computed.length) return false;
         return crypto.timingSafeEqual(Buffer.from(sigValue), Buffer.from(computed));
@@ -42,7 +51,9 @@ export async function POST(request: NextRequest) {
     const secret = process.env.SUPABASE_SMS_HOOK_SECRET;
     if (secret) {
         const sig = request.headers.get('webhook-signature') ?? '';
-        if (!sig || !verifySupabaseSignature(rawBody, sig, secret)) {
+        const webhookId = request.headers.get('webhook-id') ?? '';
+        const webhookTimestamp = request.headers.get('webhook-timestamp') ?? '';
+        if (!sig || !verifySupabaseSignature(rawBody, sig, secret, webhookId, webhookTimestamp)) {
             console.error('SMS hook: invalid signature');
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
