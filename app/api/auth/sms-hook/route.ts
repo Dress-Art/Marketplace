@@ -36,8 +36,28 @@ export async function POST(request: NextRequest) {
     const secret = process.env.SUPABASE_SMS_HOOK_SECRET;
     if (secret) {
         const sig = request.headers.get('x-supabase-signature') ?? '';
+        console.log('SMS hook debug:', {
+            secretPrefix: secret.slice(0, 12) + '...',
+            secretLength: secret.length,
+            signatureReceived: sig,
+            bodyLength: rawBody.length,
+            bodyPreview: rawBody.slice(0, 100),
+        });
         if (!verifySupabaseSignature(rawBody, sig, secret)) {
-            console.error('SMS hook: invalid signature');
+            // Compute expected for debug
+            try {
+                const commaIdx = secret.indexOf(',');
+                const whsec = secret.slice(commaIdx + 1);
+                const keyBase64 = whsec.slice('whsec_'.length);
+                const key = Buffer.from(keyBase64, 'base64');
+                const computed = crypto.createHmac('sha256', key).update(rawBody).digest('hex');
+                console.error('SMS hook: invalid signature', {
+                    received: sig,
+                    expected: `v1=${computed}`,
+                });
+            } catch (e) {
+                console.error('SMS hook: error computing debug signature', e);
+            }
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
     }
