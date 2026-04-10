@@ -33,31 +33,23 @@ function verifySupabaseSignature(rawBody: string, signature: string, secret: str
 export async function POST(request: NextRequest) {
     const rawBody = await request.text();
 
+    // Debug: log all headers to find the signature header name
+    const allHeaders: Record<string, string> = {};
+    request.headers.forEach((value, key) => {
+        allHeaders[key] = key.toLowerCase().includes('secret') || key.toLowerCase().includes('key')
+            ? '***' : value;
+    });
+    console.log('SMS hook headers:', JSON.stringify(allHeaders));
+
     const secret = process.env.SUPABASE_SMS_HOOK_SECRET;
     if (secret) {
-        const sig = request.headers.get('x-supabase-signature') ?? '';
-        console.log('SMS hook debug:', {
-            secretPrefix: secret.slice(0, 12) + '...',
-            secretLength: secret.length,
-            signatureReceived: sig,
-            bodyLength: rawBody.length,
-            bodyPreview: rawBody.slice(0, 100),
-        });
-        if (!verifySupabaseSignature(rawBody, sig, secret)) {
-            // Compute expected for debug
-            try {
-                const commaIdx = secret.indexOf(',');
-                const whsec = secret.slice(commaIdx + 1);
-                const keyBase64 = whsec.slice('whsec_'.length);
-                const key = Buffer.from(keyBase64, 'base64');
-                const computed = crypto.createHmac('sha256', key).update(rawBody).digest('hex');
-                console.error('SMS hook: invalid signature', {
-                    received: sig,
-                    expected: `v1=${computed}`,
-                });
-            } catch (e) {
-                console.error('SMS hook: error computing debug signature', e);
-            }
+        // Try multiple possible header names
+        const sig = request.headers.get('x-supabase-signature')
+            ?? request.headers.get('webhook-signature')
+            ?? request.headers.get('x-webhook-signature')
+            ?? '';
+        if (sig && !verifySupabaseSignature(rawBody, sig, secret)) {
+            console.error('SMS hook: invalid signature', { received: sig });
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
     }
