@@ -143,7 +143,7 @@ export default function LoginClient() {
                                 onClick={() => { setStep('phone'); setOtp(''); setError(''); }}
                                 className="w-full py-2 text-sm text-gray-500 hover:text-gray-900 transition-colors"
                             >
-                                ← Changer de numéro
+                                Changer de numéro
                             </button>
                         </form>
                     </>
