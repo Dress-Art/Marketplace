@@ -101,10 +101,10 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: true }); // Dev mode
     }
 
-    // Normaliser en E.164
+    // Normaliser en E.164 — Supabase stocke déjà l'indicatif (ex: 2290161198941)
     let to = phone.replace(/[\s\-]/g, '');
     if (!to.startsWith('+')) {
-        to = '+229' + to;
+        to = '+' + to;
     }
 
     const message = `Votre code de connexion DressArt : *${otp}*\n\nCe code expire dans 10 minutes. Ne le partagez jamais.`;
