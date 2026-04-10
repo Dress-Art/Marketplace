@@ -39,6 +39,7 @@ export class PaymentService {
         return {
           sessionId: `dev_${Date.now()}`,
           paymentUrl: `/payment/success?dev=true&amount=${finalAmount}`,
+          paymentToken: '',
           amount: finalAmount,
         };
       }
@@ -84,16 +85,18 @@ export class PaymentService {
       // Generate payment token
       const token = await transaction.generateToken();
 
-      // Extraction sécurisée de l'URL
+      // Extraction sécurisée de l'URL et du token
       const paymentUrl = token.url as string;
+      const paymentToken = token.token as string;
 
-      if (!paymentUrl) {
-        throw new Error("FedaPay token generation failed: URL missing");
+      if (!paymentUrl || !paymentToken) {
+        throw new Error("FedaPay token generation failed: URL or token missing");
       }
 
       return {
-        sessionId: String(transaction.id), // S'assurer que c'est une string
+        sessionId: String(transaction.id),
         paymentUrl: paymentUrl,
+        paymentToken: paymentToken,
         amount: finalAmount,
       };
     } catch (error) {
