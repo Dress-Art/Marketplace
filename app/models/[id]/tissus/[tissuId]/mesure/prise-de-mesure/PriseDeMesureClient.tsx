@@ -21,57 +21,52 @@ interface Props {
 }
 
 interface BodyMeasurements {
-    hauteur: string;
-    tourPoitrine: string;
-    tourTaille: string;
-    tourHanches: string;
-    largeurEpaules: string;
-    tourCou: string;
-    longueurDos: string;
-    longueurTotale: string;
+    // Haut
+    longueurHaut: string;
+    dos: string;
+    cou: string;
     longueurManche: string;
     tourBras: string;
-    entrejambe: string;
-    tourCuisse: string;
+    poitrine: string;
+    ventre: string;
+    // Pantalon
+    longueurPantalon: string;
+    ceinture: string;
+    fesse: string;
+    cuisse: string;
+    bas: string;
+    longueurGenou: string;
+    tourGenou: string;
 }
 
 const EMPTY: BodyMeasurements = {
-    hauteur: '', tourPoitrine: '', tourTaille: '', tourHanches: '',
-    largeurEpaules: '', tourCou: '', longueurDos: '', longueurTotale: '',
-    longueurManche: '', tourBras: '', entrejambe: '', tourCuisse: '',
+    longueurHaut: '', dos: '', cou: '', longueurManche: '', tourBras: '', poitrine: '', ventre: '',
+    longueurPantalon: '', ceinture: '', fesse: '', cuisse: '', bas: '', longueurGenou: '', tourGenou: '',
 };
 
 const SECTIONS = [
     {
-        title: 'Corps',
-        fields: [
-            { key: 'hauteur', label: 'Hauteur', required: true },
-            { key: 'tourPoitrine', label: 'Tour de poitrine', required: true },
-            { key: 'tourTaille', label: 'Tour de taille', required: true },
-            { key: 'tourHanches', label: 'Tour de hanches', required: true },
-        ],
-    },
-    {
         title: 'Haut du corps',
         fields: [
-            { key: 'largeurEpaules', label: 'Largeur des épaules', required: true },
-            { key: 'tourCou', label: 'Tour de cou', required: false },
-            { key: 'longueurDos', label: 'Longueur dos', required: true },
-            { key: 'longueurTotale', label: 'Longueur totale', required: true },
+            { key: 'longueurHaut', label: 'Longueur haut', required: true },
+            { key: 'dos', label: 'Dos', required: true },
+            { key: 'cou', label: 'Cou', required: true },
+            { key: 'longueurManche', label: 'Longueur manche', required: true },
+            { key: 'tourBras', label: 'Tour de bras', required: true },
+            { key: 'poitrine', label: 'Poitrine', required: true },
+            { key: 'ventre', label: 'Ventre', required: true },
         ],
     },
     {
-        title: 'Bras',
+        title: 'Pantalon',
         fields: [
-            { key: 'longueurManche', label: 'Longueur de manche', required: true },
-            { key: 'tourBras', label: 'Tour de bras', required: false },
-        ],
-    },
-    {
-        title: 'Bas du corps',
-        fields: [
-            { key: 'entrejambe', label: 'Entrejambe', required: false },
-            { key: 'tourCuisse', label: 'Tour de cuisse', required: false },
+            { key: 'longueurPantalon', label: 'Longueur pantalon', required: true },
+            { key: 'ceinture', label: 'Ceinture', required: true },
+            { key: 'fesse', label: 'Fesse', required: true },
+            { key: 'cuisse', label: 'Cuisse', required: true },
+            { key: 'bas', label: 'Bas', required: true },
+            { key: 'longueurGenou', label: 'Longueur genou', required: false },
+            { key: 'tourGenou', label: 'Tour genou', required: false },
         ],
     },
 ];
@@ -195,8 +190,8 @@ export default function PriseDeMesureClient({ id, tissuId }: Props) {
 
     const loading = modelsLoading || fabricsLoading || authLoading;
 
-    // ── Mode: 'rdv' par défaut — un agent se déplace ──
-    const [mode, setMode] = useState<'form' | 'rdv'>('rdv');
+    // ── Mode: 'form' par défaut — saisie des mesures ──
+    const [mode, setMode] = useState<'form' | 'rdv'>('form');
 
     // ── Form state ──
     const [mesures, setMesures] = useState<BodyMeasurements>(EMPTY);
@@ -290,7 +285,7 @@ export default function PriseDeMesureClient({ id, tissuId }: Props) {
                             Authorization: `Bearer ${session.access_token}`,
                         },
                         body: JSON.stringify({
-                            height: parseFloat(mesures.hauteur) || null,
+                            height: parseFloat(mesures.longueurHaut) || null,
                             body_measurements: mesures,
                         }),
                     });
@@ -557,6 +552,15 @@ export default function PriseDeMesureClient({ id, tissuId }: Props) {
                                                 : isOwnFabric
                                                     ? 'Sauvegarder et continuer'
                                                     : 'Confirmer et payer'}
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => setMode('rdv')}
+                                        className="w-full mt-3 py-3 text-sm text-gray-500 hover:text-gray-900 transition-colors cursor-pointer flex items-center justify-center gap-2"
+                                    >
+                                        <CalendarIcon size={16} />
+                                        Je n&apos;ai pas mes mesures — Prendre RDV
                                     </button>
                                 </form>
                             </section>
