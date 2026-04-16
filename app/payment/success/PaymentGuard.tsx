@@ -91,8 +91,8 @@ export default function PaymentGuard() {
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Paiement non confirmé</h1>
           <p className="text-gray-600 mb-8">Le paiement a été annulé ou n&apos;a pas abouti.</p>
           <div className="flex flex-col gap-3">
-            <Link href="/models" className="inline-block bg-gray-900 text-white py-3 px-6 rounded-full font-semibold hover:bg-gray-800 transition-all">Retour aux modèles</Link>
-            <Link href="/" className="inline-block text-gray-600 py-2 px-6 text-sm hover:text-gray-900 transition-colors">Retour à l&apos;accueil</Link>
+            <button onClick={() => window.history.back()} className="bg-gray-900 text-white py-3 px-6 rounded-full font-semibold hover:bg-gray-800 transition-all cursor-pointer">Réessayer le paiement</button>
+            <Link href="/models" className="inline-block text-gray-600 py-2 px-6 text-sm hover:text-gray-900 transition-colors">Retour aux modèles</Link>
           </div>
         </div>
       </div>
@@ -110,8 +110,8 @@ export default function PaymentGuard() {
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Paiement en attente</h1>
         <p className="text-gray-600 mb-8">{error || "Nous n’avons pas pu confirmer le paiement pour le moment."}</p>
         <div className="flex flex-col gap-3">
-          <Link href="/models" className="inline-block bg-gray-900 text-white py-3 px-6 rounded-full font-semibold hover:bg-gray-800 transition-all">Retour aux modèles</Link>
-          <Link href="/" className="inline-block text-gray-600 py-2 px-6 text-sm hover:text-gray-900 transition-colors">Retour à l&apos;accueil</Link>
+          <button onClick={() => window.history.back()} className="bg-gray-900 text-white py-3 px-6 rounded-full font-semibold hover:bg-gray-800 transition-all cursor-pointer">Réessayer le paiement</button>
+          <Link href="/models" className="inline-block text-gray-600 py-2 px-6 text-sm hover:text-gray-900 transition-colors">Retour aux modèles</Link>
         </div>
       </div>
     </div>
