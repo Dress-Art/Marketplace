@@ -8,7 +8,7 @@ export default function PaymentGuard() {
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(true)
   const [approved, setApproved] = useState<boolean | null>(null)
-  const [status, setStatus] = useState<string | null>(null)
+  const [, setStatus] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -89,8 +89,11 @@ export default function PaymentGuard() {
             </svg>
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Paiement non confirmé</h1>
-          <p className="text-gray-600 mb-8">Statut: {status || 'inconnu'}</p>
-          <Link href="/models" className="inline-block bg-gray-900 text-white py-3 px-6 rounded-full font-semibold hover:bg-gray-800 transition-all">Réessayer</Link>
+          <p className="text-gray-600 mb-8">Le paiement a été annulé ou n&apos;a pas abouti.</p>
+          <div className="flex flex-col gap-3">
+            <Link href="/models" className="inline-block bg-gray-900 text-white py-3 px-6 rounded-full font-semibold hover:bg-gray-800 transition-all">Retour aux modèles</Link>
+            <Link href="/" className="inline-block text-gray-600 py-2 px-6 text-sm hover:text-gray-900 transition-colors">Retour à l&apos;accueil</Link>
+          </div>
         </div>
       </div>
     )
@@ -105,8 +108,11 @@ export default function PaymentGuard() {
           </svg>
         </div>
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Paiement en attente</h1>
-        <p className="text-gray-600 mb-8">{error || 'Nous n’avons pas pu confirmer le paiement pour le moment.'}</p>
-        <Link href="/models" className="inline-block bg-white text-gray-900 py-3 px-6 rounded-full font-semibold border-2 border-gray-900 hover:bg-gray-50 transition-all">Retour aux modèles</Link>
+        <p className="text-gray-600 mb-8">{error || "Nous n’avons pas pu confirmer le paiement pour le moment."}</p>
+        <div className="flex flex-col gap-3">
+          <Link href="/models" className="inline-block bg-gray-900 text-white py-3 px-6 rounded-full font-semibold hover:bg-gray-800 transition-all">Retour aux modèles</Link>
+          <Link href="/" className="inline-block text-gray-600 py-2 px-6 text-sm hover:text-gray-900 transition-colors">Retour à l&apos;accueil</Link>
+        </div>
       </div>
     </div>
   )
