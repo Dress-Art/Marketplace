@@ -47,7 +47,7 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
     const fabricInputRef = useRef<HTMLInputElement>(null);
 
     const phoneClean = useMemo(() => userPhone.replace(/\s|-/g, ''), [userPhone]);
-    const isPhoneValid = useMemo(() => /^\+22901\d{8}$/.test(phoneClean) || /^\d{10}$/.test(phoneClean), [phoneClean]);
+    const isPhoneValid = useMemo(() => /^\+\d{8,15}$/.test(phoneClean) || /^\d{8,}$/.test(phoneClean), [phoneClean]);
     const nameClean = useMemo(() => userName.trim().replace(/\s+/g, ' '), [userName]);
     const isNameValid = useMemo(() => {
         if (!nameClean) return false;
@@ -396,9 +396,9 @@ export default function MesureClient({ id, tissuId }: MesureClientProps) {
                                     {userName && !isNameValid && <p className="mt-1 text-sm text-red-600">Entrez votre nom complet (prénom + nom).</p>}
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-semibold mb-2">Numéro de téléphone *</label>
+                                    <label className="block text-sm font-semibold mb-2">Numéro WhatsApp *</label>
                                     <input type="tel" value={userPhone} onChange={(e) => setUserPhone(e.target.value)} placeholder="Ex: +229 01 XX XX XX XX" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900" required />
-                                    {userPhone && !isPhoneValid && <p className="mt-1 text-sm text-red-600">Format : 10 chiffres ou +229 01 suivi de 8 chiffres.</p>}
+                                    {userPhone && !isPhoneValid && <p className="mt-1 text-sm text-red-600">Minimum 8 chiffres.</p>}
                                 </div>
                             </div>
                         </div>

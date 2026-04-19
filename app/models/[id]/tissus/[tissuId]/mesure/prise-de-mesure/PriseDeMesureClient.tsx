@@ -190,7 +190,7 @@ export default function PriseDeMesureClient({ id, tissuId }: Props) {
 
     const loading = modelsLoading || fabricsLoading || authLoading;
 
-    // ── Mode: 'form' par défaut — saisie des mesures ──
+    // ── Mode: 'rdv' par défaut — un agent se déplace ──
     const [mode, setMode] = useState<'form' | 'rdv'>('form');
 
     // ── Form state ──
@@ -213,7 +213,7 @@ export default function PriseDeMesureClient({ id, tissuId }: Props) {
 
     // Payment validation
     const phoneClean = useMemo(() => userPhone.replace(/\s|-/g, ''), [userPhone]);
-    const isPhoneValid = useMemo(() => /^\+22901\d{8}$/.test(phoneClean) || /^\d{10}$/.test(phoneClean), [phoneClean]);
+    const isPhoneValid = useMemo(() => /^\+\d{8,15}$/.test(phoneClean) || /^\d{8,}$/.test(phoneClean), [phoneClean]);
     const nameClean = useMemo(() => userName.trim().replace(/\s+/g, ' '), [userName]);
     const isNameValid = useMemo(() => {
         if (!nameClean) return false;
@@ -706,7 +706,7 @@ export default function PriseDeMesureClient({ id, tissuId }: Props) {
                                     )}
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-semibold mb-2">Numéro de téléphone *</label>
+                                    <label className="block text-sm font-semibold mb-2">Numéro WhatsApp *</label>
                                     <input
                                         type="tel"
                                         value={userPhone}
