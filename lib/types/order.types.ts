@@ -3,6 +3,7 @@ export interface CreateOrderData {
     orderNumber: string;
     customerName: string;
     customerPhone: string;
+    customerEmail?: string;
     modelId: string;
     fabricId: string | null;
     measurements?: {
@@ -29,6 +30,7 @@ export interface Order {
     orderNumber: string;
     customerName: string;
     customerPhone: string;
+    customerEmail?: string;
     modelId: string;
     fabricId: string | null;
     measurements?: Record<string, string>;

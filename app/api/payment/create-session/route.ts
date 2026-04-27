@@ -100,7 +100,11 @@ export async function POST(request: NextRequest) {
         // Prepare pending payment data
         const pendingPayment: PendingPayment = {
             sessionId: session.sessionId,
-            customerInfo: body.customerInfo,
+            customerInfo: {
+                name: body.customerInfo.name,
+                phone: body.customerInfo.phone,
+                email: body.customerInfo.email,
+            },
             orderDetails: {
                 ...body.orderDetails,
                 location: body.orderDetails.location || 'cotonou',

@@ -56,6 +56,7 @@ export interface PendingPayment {
     customerInfo: {
         name: string;
         phone: string;
+        email?: string;
     };
     orderDetails: {
         modelId: string;

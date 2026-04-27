@@ -6,6 +6,7 @@ import type { FedaPayWebhookPayload } from '@/lib/types/payment.types';
 import { redis } from '@/lib/services/redis.service';
 import { supabase } from '@/lib/services/supabase.service';
 import { sendWhatsApp } from '@/lib/services/whatsapp.service';
+import { sendOrderStatusEmail } from '@/lib/services/resend.service';
 
 /**
  * AC2: Handle payment callback and create order
@@ -91,6 +92,7 @@ export async function POST(request: NextRequest) {
                 order = await OrderService.createOrder({
                     customerName: pendingPayment.customerInfo.name,
                     customerPhone: pendingPayment.customerInfo.phone,
+                    customerEmail: pendingPayment.customerInfo.email,
                     modelId: pendingPayment.orderDetails.modelId,
                     fabricId: pendingPayment.orderDetails.fabricId,
                     measurements: pendingPayment.orderDetails.measurements || null,
@@ -134,16 +136,20 @@ export async function POST(request: NextRequest) {
             const phone = pendingPayment.customerInfo.phone;
             const phoneE164 = phone.startsWith('+') ? phone : `+229${phone}`;
             const { data: existingUser } = await supabase.auth.admin.listUsers();
-            const alreadyExists = existingUser?.users?.some(u => u.phone === phoneE164);
-            if (!alreadyExists) {
-                const { error: createUserError } = await supabase.auth.admin.createUser({
+            const matchingUser = existingUser?.users?.find(u => u.phone === phoneE164);
+            let userId = matchingUser?.id;
+            if (!matchingUser) {
+                const { data: newUser, error: createUserError } = await supabase.auth.admin.createUser({
                     phone: phoneE164,
+                    email: pendingPayment.customerInfo.email,
                     phone_confirm: true,
+                    email_confirm: !!pendingPayment.customerInfo.email,
                     user_metadata: {
                         full_name: pendingPayment.customerInfo.name,
                     },
                 });
-                if (!createUserError) {
+                if (!createUserError && newUser?.user) {
+                    userId = newUser.user.id;
                     await sendWhatsApp(
                         phone,
                         `Bonjour ${pendingPayment.customerInfo.name} 👋\n\nVotre compte DressArt a été créé automatiquement.\n\nConnectez-vous avec votre numéro WhatsApp pour suivre vos commandes : ${siteUrl}/auth/login\n\n— DressArt`
@@ -151,11 +157,33 @@ export async function POST(request: NextRequest) {
                 }
             }
 
+            // Créer le rendez-vous si une date a été fournie
+            if (userId && pendingPayment.orderDetails.appointmentDate) {
+                await supabase.from('appointments').insert({
+                    user_id: userId,
+                    appointment_date: pendingPayment.orderDetails.appointmentDate,
+                    status: 'scheduled',
+                });
+            }
+
             // Send WhatsApp confirmation de commande au client
             await sendWhatsApp(
                 order.customerPhone,
                 `Bonjour ${order.customerName} 👋\n\nVotre commande *${order.orderNumber}* est confirmée ✅\n\nMontant payé : *${order.paidAmount.toLocaleString('fr-FR')} FCFA*${order.totalAmount > order.paidAmount ? `\nSolde restant : ${(order.totalAmount - order.paidAmount).toLocaleString('fr-FR')} FCFA (à la livraison)` : ''}\n\nSuivez votre commande : ${siteUrl}/suivi\n\nMerci de votre confiance — DressArt 🧵`
             );
+
+            // Envoyer email de confirmation si email disponible
+            if (order.customerEmail) {
+                await sendOrderStatusEmail({
+                    to: order.customerEmail,
+                    customerName: order.customerName,
+                    orderNumber: order.orderNumber,
+                    status: 'confirmed',
+                    totalAmount: order.totalAmount,
+                    paidAmount: order.paidAmount,
+                    siteUrl,
+                });
+            }
 
             // Notif admin
             const adminPhone = process.env.ADMIN_WHATSAPP_PHONE;

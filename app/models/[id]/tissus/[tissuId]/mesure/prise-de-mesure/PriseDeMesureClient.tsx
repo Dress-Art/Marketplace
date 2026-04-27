@@ -208,12 +208,15 @@ export default function PriseDeMesureClient({ id, tissuId }: Props) {
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [userName, setUserName] = useState('');
     const [userPhone, setUserPhone] = useState('');
+    const [userEmail, setUserEmail] = useState('');
     const [paymentType, setPaymentType] = useState<'full' | 'partial'>('partial');
     const [isProcessing, setIsProcessing] = useState(false);
 
     // Payment validation
     const phoneClean = useMemo(() => userPhone.replace(/\s|-/g, ''), [userPhone]);
     const isPhoneValid = useMemo(() => /^\+\d{8,15}$/.test(phoneClean) || /^\d{8,}$/.test(phoneClean), [phoneClean]);
+    const emailClean = useMemo(() => userEmail.trim(), [userEmail]);
+    const isEmailValid = useMemo(() => !emailClean || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailClean), [emailClean]);
     const nameClean = useMemo(() => userName.trim().replace(/\s+/g, ' '), [userName]);
     const isNameValid = useMemo(() => {
         if (!nameClean) return false;
@@ -329,7 +332,7 @@ export default function PriseDeMesureClient({ id, tissuId }: Props) {
                 body: JSON.stringify({
                     amount: finalAmount,
                     paymentType,
-                    customerInfo: { name: userName, phone: phoneClean },
+                    customerInfo: { name: userName, phone: phoneClean, email: emailClean || undefined },
                     orderDetails: {
                         modelId: model.id,
                         fabricId: isOwnFabric ? null : (tissu ? tissu.id : null),
@@ -716,7 +719,20 @@ export default function PriseDeMesureClient({ id, tissuId }: Props) {
                                         required
                                     />
                                     {userPhone && !isPhoneValid && (
-                                        <p className="mt-1 text-sm text-red-600">Format : 10 chiffres ou +229 01 suivi de 8 chiffres.</p>
+                                        <p className="mt-1 text-sm text-red-600">Minimum 8 chiffres.</p>
+                                    )}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold mb-2">Email <span className="text-gray-400 font-normal">(optionnel)</span></label>
+                                    <input
+                                        type="email"
+                                        value={userEmail}
+                                        onChange={e => setUserEmail(e.target.value)}
+                                        placeholder="vous@exemple.com"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
+                                    />
+                                    {userEmail && !isEmailValid && (
+                                        <p className="mt-1 text-sm text-red-600">Email invalide.</p>
                                     )}
                                 </div>
                             </div>
@@ -818,15 +834,15 @@ export default function PriseDeMesureClient({ id, tissuId }: Props) {
                         {/* Actions */}
                         <div className="flex gap-3">
                             <button
-                                onClick={() => { setShowPaymentModal(false); setUserName(''); setUserPhone(''); }}
+                                onClick={() => { setShowPaymentModal(false); setUserName(''); setUserPhone(''); setUserEmail(''); }}
                                 className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-full font-semibold hover:bg-gray-50 transition-all cursor-pointer"
                             >
                                 Annuler
                             </button>
                             <button
                                 onClick={handlePaymentConfirm}
-                                disabled={!isNameValid || !userPhone || !isPhoneValid || isProcessing}
-                                className={`flex-1 px-6 py-3 rounded-full font-semibold transition-all flex items-center justify-center gap-2 ${isNameValid && userPhone && isPhoneValid && !isProcessing ? 'bg-gray-900 text-white hover:bg-gray-800 cursor-pointer' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
+                                disabled={!isNameValid || !userPhone || !isPhoneValid || !isEmailValid || isProcessing}
+                                className={`flex-1 px-6 py-3 rounded-full font-semibold transition-all flex items-center justify-center gap-2 ${isNameValid && userPhone && isPhoneValid && isEmailValid && !isProcessing ? 'bg-gray-900 text-white hover:bg-gray-800 cursor-pointer' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
                             >
                                 {isProcessing ? (
                                     <>

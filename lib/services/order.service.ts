@@ -20,6 +20,7 @@ export class OrderService {
             orderNumber: row.order_number,
             customerName: row.customer_name,
             customerPhone: row.customer_phone,
+            customerEmail: row.customer_email,
             modelId: row.model_id,
             fabricId: row.fabric_id,
             measurements: row.measurements,
@@ -45,6 +46,7 @@ export class OrderService {
                 .insert({
                     customer_name: data.customerName,
                     customer_phone: data.customerPhone,
+                    customer_email: data.customerEmail || null,
                     model_id: data.modelId,
                     fabric_id: data.fabricId,
                     measurements: data.measurements || null,
