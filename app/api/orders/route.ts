@@ -28,17 +28,20 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Token invalide' }, { status: 401 });
     }
 
-    const phone = user.user_metadata?.phone as string | undefined;
-    if (!phone) {
+    const userPhoneE164 = user.phone;
+    if (!userPhoneE164) {
         return NextResponse.json({ orders: [] });
     }
+
+    // customer_phone is stored without the +229 country code; user.phone is E164.
+    const localPhone = userPhoneE164.startsWith('+229') ? userPhoneE164.slice(4) : userPhoneE164.replace(/^\+/, '');
 
     // Fetch orders using service role key (bypasses RLS)
     const serviceClient = createClient(supabaseUrl, supabaseServiceKey);
     const { data: orders, error } = await serviceClient
         .from('orders')
         .select('*')
-        .eq('customer_phone', phone)
+        .or(`customer_phone.eq.${localPhone},customer_phone.eq.${userPhoneE164}`)
         .order('created_at', { ascending: false });
 
     if (error) {
