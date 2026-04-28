@@ -98,8 +98,9 @@ export async function GET(request: NextRequest) {
     // Auto-create Supabase account if first order
     const phone = pendingPayment.customerInfo.phone;
     const phoneE164 = phone.startsWith('+') ? phone : `+229${phone}`;
+    const phoneDigits = phoneE164.replace(/\D/g, '');
     const { data: existingUsers } = await supabase.auth.admin.listUsers();
-    const matchingUser = existingUsers?.users?.find((u) => u.phone === phoneE164);
+    const matchingUser = existingUsers?.users?.find((u) => u.phone && u.phone.replace(/\D/g, '') === phoneDigits);
     let userId = matchingUser?.id;
     if (!matchingUser) {
       const { data: newUser, error: createUserError } = await supabase.auth.admin.createUser({
@@ -116,6 +117,12 @@ export async function GET(request: NextRequest) {
           `Bonjour ${pendingPayment.customerInfo.name} 👋\n\nVotre compte DressArt a été créé automatiquement.\n\nConnectez-vous avec votre numéro WhatsApp pour suivre vos commandes : ${siteUrl}/auth/login\n\n— DressArt`
         );
       }
+    } else if (pendingPayment.customerInfo.email && !matchingUser.email) {
+      // Compte existant sans email : on l'ajoute
+      await supabase.auth.admin.updateUserById(matchingUser.id, {
+        email: pendingPayment.customerInfo.email,
+        email_confirm: true,
+      });
     }
 
     // Créer le rendez-vous si une date a été fournie
