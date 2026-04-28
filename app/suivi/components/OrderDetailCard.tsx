@@ -24,21 +24,21 @@ export default function OrderDetailCard({ order }: OrderDetailCardProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 p-6 bg-gray-50 rounded-2xl">
         <div>
-          <p className="text-sm text-gray-600 mb-1">Modèle</p>
+          <p className="text-sm text-gray-600 mb-1">Modèle : </p>
           <p className="font-semibold text-gray-900">{order.modelName}</p>
         </div>
         <div>
-          <p className="text-sm text-gray-600 mb-1">Tissu</p>
+          <p className="text-sm text-gray-600 mb-1">Tissu : </p>
           <p className="font-semibold text-gray-900">{order.fabricName}</p>
         </div>
         <div>
-          <p className="text-sm text-gray-600 mb-1">Montant total</p>
+          <p className="text-sm text-gray-600 mb-1">Montant total : </p>
           <p className="font-semibold text-gray-900">
             {order.totalAmount.toLocaleString("fr-FR")} FCFA
           </p>
         </div>
         <div>
-          <p className="text-sm text-gray-600 mb-1">Livraison estimée</p>
+          <p className="text-sm text-gray-600 mb-1">Livraison estimée : </p>
           <p className="font-semibold text-gray-900">
             {new Date(order.estimatedDelivery).toLocaleDateString("fr-FR")}
           </p>

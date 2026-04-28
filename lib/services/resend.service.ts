@@ -54,16 +54,16 @@ export async function sendOrderStatusEmail({
 
             <div style="background:#f9fafb;border-radius:12px;padding:16px;margin-bottom:24px;">
                 <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-                    <span style="color:#6b7280;font-size:14px;">Montant total</span>
+                    <span style="color:#6b7280;font-size:14px;">Montant total : </span>
                     <span style="font-weight:600;font-size:14px;">${totalAmount.toLocaleString('fr-FR')} FCFA</span>
                 </div>
                 <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-                    <span style="color:#6b7280;font-size:14px;">Déjà payé</span>
+                    <span style="color:#6b7280;font-size:14px;">Déjà payé : </span>
                     <span style="font-weight:600;font-size:14px;color:#059669;">${paidAmount.toLocaleString('fr-FR')} FCFA</span>
                 </div>
                 ${remaining > 0 ? `
                 <div style="display:flex;justify-content:space-between;">
-                    <span style="color:#6b7280;font-size:14px;">Solde restant</span>
+                    <span style="color:#6b7280;font-size:14px;">Solde restant : </span>
                     <span style="font-weight:600;font-size:14px;">${remaining.toLocaleString('fr-FR')} FCFA</span>
                 </div>` : ''}
             </div>
