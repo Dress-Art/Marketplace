@@ -137,6 +137,13 @@ export default function Header() {
                         Suivi
                     </Link>
                     <Link
+                        href="/pro"
+                        className={`font-medium transition-colors ${pathname.startsWith('/pro') ? 'text-gray-900 underline underline-offset-4' : 'text-gray-900 hover:text-gray-600'}`}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                        Espace pro
+                    </Link>
+                    <Link
                         href={user ? '/profile' : '/auth/login'}
                         className={`font-medium transition-colors ${pathname.startsWith('/profile') || pathname.startsWith('/auth') ? 'text-gray-900 underline underline-offset-4' : 'text-gray-900 hover:text-gray-600'}`}
                         onClick={() => setIsMobileMenuOpen(false)}

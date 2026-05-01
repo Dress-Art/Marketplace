@@ -3,6 +3,7 @@ import Hero from '@/components/landing-page/Hero';
 import ModelsSection from '@/components/landing-page/ModelsSection';
 import FeaturesSection from '@/components/landing-page/FeaturesSection';
 import CTASection from '@/components/landing-page/CTASection';
+import ProCallout from '@/components/landing-page/ProCallout';
 import Footer from '@/components/landing-page/Footer';
 import FadeIn from '@/components/animations/FadeIn';
 import { seoConfig } from '@/lib/seo/config';
@@ -69,6 +70,10 @@ export default function Home() {
         </FadeIn>
 
         <FadeIn delay={0.5}>
+          <ProCallout />
+        </FadeIn>
+
+        <FadeIn delay={0.6}>
           <Footer />
         </FadeIn>
       </main>

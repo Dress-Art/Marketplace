@@ -22,6 +22,9 @@ export default function Footer() {
             <Link href="/suivi" className="text-gray-600 hover:text-gray-900 transition-colors">
               Suivi
             </Link>
+            <Link href="/pro" className="text-gray-600 hover:text-gray-900 transition-colors">
+              Espace pro
+            </Link>
           </div>
 
           {/* Center - Empty for now as the big title will take visual precedence below */}
