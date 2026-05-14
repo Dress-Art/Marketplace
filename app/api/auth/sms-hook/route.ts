@@ -93,36 +93,39 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Missing phone or otp' }, { status: 400 });
     }
 
-    const apiKey = process.env.MSGFLASH_API_KEY;
-    const instanceId = process.env.MSGFLASH_INSTANCE_ID;
+    const evolutionUrl = process.env.EVOLUTION_API_URL
+    const evolutionKey = process.env.EVOLUTION_API_KEY
+    const evolutionInstance = process.env.EVOLUTION_INSTANCE
 
-    if (!apiKey || !instanceId) {
-        console.warn('MsgFlash not configured');
-        return NextResponse.json({ success: true }); // Dev mode
+    if (!evolutionUrl || !evolutionKey || !evolutionInstance) {
+        console.warn('Evolution API not configured')
+        return NextResponse.json({ success: true }) // Dev mode
     }
 
-    // Normaliser en E.164 — Supabase stocke déjà l'indicatif (ex: 2290161198941)
-    let to = phone.replace(/[\s\-]/g, '');
-    if (!to.startsWith('+')) {
-        to = '+' + to;
-    }
 
-    const message = `Votre code de connexion DressArt : *${otp}*\n\nCe code expire dans 10 minutes. Ne le partagez jamais.`;
+    let to = phone.replace(/[\s\-]/g, '')
+    if (to.startsWith('+')) to = to.slice(1)
 
-    const res = await fetch('https://srv.msgflash.com/api/v1/messages/send', {
+    const message = `Votre code de connexion DressArt : *${otp}*\n\nCe code expire dans 10 minutes. Ne le partagez jamais.`
+
+    const res = await fetch(`${evolutionUrl}/message/sendText/${evolutionInstance}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'x-api-key': apiKey,
+            'apikey': evolutionKey,
         },
-        body: JSON.stringify({ instanceId, to, type: 'text', text: message }),
-    });
+        body: JSON.stringify({
+            number: to,
+            options: { delay: 500, presence: 'composing' },
+            textMessage: { text: message }
+        }),
+    })
 
     if (!res.ok) {
-        const err = await res.text();
-        console.error('MsgFlash OTP error:', res.status, err);
-        return NextResponse.json({ error: 'Failed to send OTP' }, { status: 500 });
+        const err = await res.text()
+        console.error('Evolution OTP error:', res.status, err)
+        return NextResponse.json({ error: 'Failed to send OTP' }, { status: 500 })
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true })
 }
